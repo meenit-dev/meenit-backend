@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  meenit-postgres:
+    image: postgres:13
+    restart: unless-stopped
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgresql/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: "meenit"
+      TZ: "UTC"
+    env_file:
+      - ./.env
+    platform: linux/x86_64

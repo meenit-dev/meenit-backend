@@ -1,0 +1,110 @@
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { UserService } from '../../user/service/user.service';
+import {
+  BasicJWTResponseDto,
+  SignInRequest,
+  SignUpRequestDto,
+} from '../dto/auth.dto';
+import {
+  getJwtAccessExpiration,
+  getJwtAccessSecret,
+  getJwtRefreshExpiration,
+  getJwtRefreshSecret,
+  UserPayload,
+} from '../type/auth.type';
+import { Transactional } from 'typeorm-transactional';
+import { User } from 'src/module/user/entity/user.entity';
+import { UserAuthTokenRepository } from '../repository/user.auth.token.repository';
+import { UserAuthToken } from '../entity/user.auth.token.entity';
+import { BadRequestError, NotFoundError } from '@common/error';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly userAuthTokenRepository: UserAuthTokenRepository,
+  ) {}
+
+  async me({ userId }: UserPayload) {
+    return this.userService.getUserById(userId);
+  }
+
+  async signIn(signInRequest: SignInRequest): Promise<BasicJWTResponseDto> {
+    const user = await this.userService.signIn(signInRequest);
+    const userJwt = this.makeBasicJWTResponse(user);
+    await this.userAuthTokenRepository.save(
+      UserAuthToken.of({ userId: user.id, ...userJwt }),
+    );
+
+    return userJwt;
+  }
+
+  @Transactional()
+  async signUp(dto: SignUpRequestDto) {
+    await this.userService.createUser(dto);
+  }
+
+  @Transactional()
+  async refresh(
+    { userId }: UserPayload,
+    refreshToken: string,
+  ): Promise<BasicJWTResponseDto> {
+    const user = await this.userService.getUserById(userId);
+    if (!user) {
+      throw new NotFoundError();
+    }
+    const userAuthToken =
+      await this.userAuthTokenRepository.findOneNoUsedByRefreshToken(
+        refreshToken,
+      );
+    if (!userAuthToken) {
+      throw new BadRequestError();
+    }
+    await this.userAuthTokenRepository.save(userAuthToken.use());
+    const userJwt = this.makeBasicJWTResponse(user);
+
+    await this.userAuthTokenRepository.save(
+      UserAuthToken.of({ userId: user.id, ...userJwt }),
+    );
+    return userJwt;
+  }
+
+  @Transactional()
+  async signOut(accessToken: string) {
+    const userAuthToken =
+      await this.userAuthTokenRepository.findOneByAccessToken(accessToken);
+    if (userAuthToken) {
+      await this.userAuthTokenRepository.softDeleteById(userAuthToken.id);
+    }
+  }
+
+  makeBasicJWTResponse(user: User) {
+    const payload = {
+      userId: user.id,
+      userName: user.name,
+      email: user.email,
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      secret: getJwtAccessSecret(),
+      expiresIn: `${getJwtAccessExpiration()}s`,
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: getJwtRefreshSecret(),
+      expiresIn: `${getJwtRefreshExpiration()}s`,
+    });
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+      },
+      accessToken,
+      refreshToken,
+    };
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "InternalServerErrorException": "서버 오류입니다. 다시 한번 시도해주세요.",
+  "UnauthorizedException": "인증에 실패했습니다. 다시 시도해주세요.",
+  "NotFoundException": "존재하지 않는 데이터입니다.",
+  "BadRequestException": "잘못된 요청입니다.",
+  "DuplicatedError": "중복으로 생성할 수 없는 데이터입니다.",
+  "InternalServerError": "서버 오류입니다. 다시 한번 시도해주세요.",
+  "UnauthorizedError": "인증에 실패했습니다. 다시 시도해주세요.",
+  "ForbiddenError": "권한이 필요합니다.",
+  "NotFoundError": "존재하지 않는 데이터입니다.",
+  "BadRequestError": "잘못된 요청입니다.",
+  "RequestMaxSizeError": "요청의 최대 크기가 {size}를 넘을 수 없습니다.",
+  "ValidationError": "요청한 데이터에 오류가 있습니다. 입력 값을 다시 확인해 주세요.",
+  "SignupFailedError": "회원 가입에 실패했습니다."
+}
