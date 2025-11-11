@@ -24,6 +24,9 @@ export class User extends CommonBaseEntity {
     const user = new User();
     user.name = createRequest.name;
     user.email = createRequest.email;
+    user.avatar = createRequest.avatar;
+    user.googleId = createRequest.googleId;
+    user.xId = createRequest.xId;
 
     return user;
   }

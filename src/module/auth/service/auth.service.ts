@@ -24,19 +24,39 @@ export class AuthService {
     private readonly userAuthTokenRepository: UserAuthTokenRepository,
   ) {}
 
-  async signIn(ssoUserPayload: SsoUserPayload): Promise<BasicJWTResponseDto> {
-    const user = await this.userService.signIn(ssoUserPayload);
+  async signIn(
+    ssoUserPayload: SsoUserPayload,
+    name?: string,
+  ): Promise<BasicJWTResponseDto> {
+    const user = await (async () => {
+      const user = await this.userService.getUserByProviderAndProviderId(
+        ssoUserPayload.provider,
+        ssoUserPayload.id,
+      );
+      if (user) {
+        return user;
+      }
+      if (name) {
+        return this.signUp({
+          email: ssoUserPayload.email,
+          name,
+          avatar: ssoUserPayload.avatar,
+          [`${ssoUserPayload.provider}Id`]: ssoUserPayload.id,
+        });
+      } else {
+        throw new NotFoundError();
+      }
+    })();
     const userJwt = this.makeBasicJWTResponse(user);
     await this.userAuthTokenRepository.save(
       UserAuthToken.of({ userId: user.id, ...userJwt }),
     );
-
     return userJwt;
   }
 
   @Transactional()
   async signUp(dto: SignUpRequestDto) {
-    await this.userService.createUser(dto);
+    return this.userService.createUser(dto);
   }
 
   @Transactional()

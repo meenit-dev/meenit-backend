@@ -1,5 +1,9 @@
 import { ReqUser } from '@common/decorator';
-import { BasicJWTResponseDto, SignUpRequestDto } from '../dto/auth.dto';
+import {
+  BasicJWTResponseDto,
+  SignUpRequestDto,
+  SsoSignUpQueryDto,
+} from '../dto/auth.dto';
 import { AuthService } from '../service/auth.service';
 import {
   Body,
@@ -7,6 +11,8 @@ import {
   Get,
   Headers,
   Post,
+  Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -31,17 +37,22 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleGuard)
-  async googleAuth() {}
+  async googleAuth(@Query() _query: SsoSignUpQueryDto) {}
 
   @Get('google/callback')
   @UseGuards(GoogleGuard)
-  googleCallback(@ReqUser() user: SsoUserPayload) {
-    return this.authService.signIn(user);
+  googleCallback(@Req() req, @ReqUser() user: SsoUserPayload) {
+    const { name } = JSON.parse(decodeURIComponent(req.query.state));
+    return this.authService.signIn(user, name);
   }
 
   @Get('x')
   @UseGuards(XGuard)
-  async xAuth(@ReqUser() result: any, @Res() res: Response) {
+  async xAuth(
+    @ReqUser() result: any,
+    @Res() res: Response,
+    @Query() _query: SsoSignUpQueryDto,
+  ) {
     if (result?.redirect) {
       return res.redirect(result.redirect);
     }
@@ -52,8 +63,9 @@ export class AuthController {
   @ApiCreatedResponse({
     type: BasicJWTResponseDto,
   })
-  xCallback(@ReqUser() user: SsoUserPayload) {
-    return this.authService.signIn(user);
+  xCallback(@Req() req, @ReqUser() user: SsoUserPayload) {
+    const { name } = JSON.parse(decodeURIComponent(req.query.state));
+    return this.authService.signIn(user, name);
   }
 
   @Post('sign-up')

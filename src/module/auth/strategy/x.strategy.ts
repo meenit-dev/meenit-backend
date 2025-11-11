@@ -1,30 +1,25 @@
-// src/auth/strategies/twitter-x.strategy.ts
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-custom';
 import axios from 'axios';
 import * as crypto from 'crypto';
-import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { SsoProvider, SsoUserPayload } from '../type/auth.type';
 
 @Injectable()
 export class XStrategy extends PassportStrategy(Strategy, 'x') {
-  constructor(private readonly jwtService: JwtService) {
+  constructor() {
     super();
   }
 
   async validate(req: Request): Promise<any> {
-    const { code, state } = req.query;
+    const { code, state, name } = req.query;
 
     // 1) 로그인 초기 요청
     if (!code) {
       const codeVerifier = crypto.randomBytes(32).toString('base64');
 
-      const stateJwt = this.jwtService.sign(
-        { codeVerifier },
-        { expiresIn: '5m', secret: process.env.X_STATE_SECRET },
-      );
+      const state = { codeVerifier, name };
 
       const authorizeUrl = new URL('https://twitter.com/i/oauth2/authorize');
       authorizeUrl.searchParams.set('response_type', 'code');
@@ -34,7 +29,10 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
         'scope',
         'tweet.read users.read offline.access',
       );
-      authorizeUrl.searchParams.set('state', stateJwt);
+      authorizeUrl.searchParams.set(
+        'state',
+        encodeURIComponent(JSON.stringify(state)),
+      );
       authorizeUrl.searchParams.set('code_challenge', codeVerifier);
       authorizeUrl.searchParams.set('code_challenge_method', 'plain');
 
@@ -42,15 +40,9 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
     }
 
     // 2) Callback 요청 → state 검증
-    let decoded: { codeVerifier: string };
-    try {
-      decoded = this.jwtService.verify(state as string, {
-        secret: process.env.X_STATE_SECRET,
-      });
-    } catch (e) {
-      throw new UnauthorizedException('Invalid state');
-    }
-
+    const decoded: { codeVerifier: string; name?: string } = JSON.parse(
+      decodeURIComponent(state as string),
+    );
     const codeVerifier = decoded.codeVerifier;
 
     // 3) Token 교환

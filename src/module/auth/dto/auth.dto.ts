@@ -1,28 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsOptional } from 'class-validator';
 
-export class SignUpRequestDto {
+export class SsoSignUpQueryDto {
   @ApiProperty({
-    description: '유저 이름',
+    description: '회원가입 시 유저 이름',
     example: '홍길동',
+    required: false,
   })
-  @IsString()
+  @IsOptional()
+  name?: string;
+}
+
+export interface SignUpRequestDto {
   name: string;
-
-  @ApiProperty({
-    description: '계정 email',
-    example: 'aiv@aiv.ai',
-  })
-  @IsEmail()
   email: string;
-
-  @ApiProperty({
-    description: '계정 password. 최소 8글자',
-    example: 'password',
-  })
-  @IsString()
-  @MinLength(8)
-  password: string;
+  avatar?: string;
+  googleId?: string;
+  xId?: string;
 }
 
 export class LoginUserDto {

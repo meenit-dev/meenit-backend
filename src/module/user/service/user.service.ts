@@ -3,7 +3,7 @@ import { UserRepository } from '../repository/user.repository';
 import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { User } from '../entity/user.entity';
 import { PutUserInfoBodyDto } from '../dto/user.dto';
-import { SsoUserPayload, UserPayload } from 'src/module/auth/type/auth.type';
+import { SsoProvider, UserPayload } from 'src/module/auth/type/auth.type';
 import { NotFoundError, SignupFailedError } from '@common/error';
 
 @Injectable()
@@ -18,14 +18,14 @@ export class UserService {
     return this.userRepository.findOneByEmail(email);
   }
 
-  async signIn(ssoUserPayload: SsoUserPayload) {
-    const user = await this.userRepository.findOneByProviderAndProviderId(
-      ssoUserPayload.provider,
-      ssoUserPayload.id,
+  async getUserByProviderAndProviderId(
+    provider: SsoProvider,
+    providerId: string,
+  ) {
+    return this.userRepository.findOneByProviderAndProviderId(
+      provider,
+      providerId,
     );
-    if (!user) throw new NotFoundError();
-
-    return user;
   }
 
   async createUser(signUpRequest: SignUpRequestDto) {
