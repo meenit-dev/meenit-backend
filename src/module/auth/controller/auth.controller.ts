@@ -18,6 +18,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiSecurity,
   ApiTags,
@@ -37,6 +38,7 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleGuard)
+  @ApiOkResponse({ type: BasicJWTResponseDto })
   async googleAuth(@Query() _query: SsoSignUpQueryDto) {}
 
   @Get('google/callback')
@@ -48,6 +50,7 @@ export class AuthController {
 
   @Get('x')
   @UseGuards(XGuard)
+  @ApiOkResponse({ type: BasicJWTResponseDto })
   async xAuth(
     @ReqUser() result: any,
     @Res() res: Response,
