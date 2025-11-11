@@ -25,23 +25,6 @@ export class SignUpRequestDto {
   password: string;
 }
 
-export class SignInRequest {
-  @ApiProperty({
-    description: '계정 email',
-    example: 'aiv@aiv.ai',
-  })
-  @IsString()
-  @IsEmail()
-  email: string;
-
-  @ApiProperty({
-    description: '계정 password',
-    example: 'password',
-  })
-  @IsString()
-  password: string;
-}
-
 export class LoginUserDto {
   @ApiProperty({
     description: '유저 고유 아이디',

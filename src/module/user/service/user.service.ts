@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
-import { SignInRequest, SignUpRequestDto } from '../../auth/dto/auth.dto';
+import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { User } from '../entity/user.entity';
 import { PutUserInfoBodyDto } from '../dto/user.dto';
-import { UserPayload } from 'src/module/auth/type/auth.type';
+import { SsoUserPayload, UserPayload } from 'src/module/auth/type/auth.type';
 import { NotFoundError, SignupFailedError } from '@common/error';
 
 @Injectable()
@@ -18,8 +18,11 @@ export class UserService {
     return this.userRepository.findOneByEmail(email);
   }
 
-  async signIn(signInRequest: SignInRequest) {
-    const user = await this.userRepository.findOneByEmail(signInRequest.email);
+  async signIn(ssoUserPayload: SsoUserPayload) {
+    const user = await this.userRepository.findOneByProviderAndProviderId(
+      ssoUserPayload.provider,
+      ssoUserPayload.id,
+    );
     if (!user) throw new NotFoundError();
 
     return user;
@@ -33,8 +36,8 @@ export class UserService {
     return this.userRepository.save(User.of(signUpRequest));
   }
 
-  async updateUserInfo({ userId }: UserPayload, body: PutUserInfoBodyDto) {
-    const user = await this.userRepository.findOneById(userId);
+  async updateUserInfo({ id }: UserPayload, body: PutUserInfoBodyDto) {
+    const user = await this.userRepository.findOneById(id);
     if (!user) {
       throw new NotFoundError();
     }

@@ -4,11 +4,12 @@ export interface UserPayload {
   email: string;
 }
 
-export interface GoogleUserPayload {
+export interface SsoUserPayload {
+  provider: SsoProvider;
   id: string;
   name: string;
   email: string;
-  avartar: string;
+  avatar: string;
 }
 
 export interface ExternalKeyPayload {
@@ -24,10 +25,9 @@ export interface AdminUserPayload {
   exp: number;
 }
 
-export enum AuthRole {
-  OWNER = 'owner',
-  ADMIN = 'admin',
-  USER = 'user',
+export enum SsoProvider {
+  GOOGLE = 'google',
+  X = 'x',
 }
 
 export enum AuthType {

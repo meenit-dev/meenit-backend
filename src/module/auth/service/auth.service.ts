@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/service/user.service';
-import {
-  BasicJWTResponseDto,
-  SignInRequest,
-  SignUpRequestDto,
-} from '../dto/auth.dto';
+import { BasicJWTResponseDto, SignUpRequestDto } from '../dto/auth.dto';
 import {
   getJwtAccessExpiration,
   getJwtAccessSecret,
   getJwtRefreshExpiration,
   getJwtRefreshSecret,
+  SsoUserPayload,
   UserPayload,
 } from '../type/auth.type';
 import { Transactional } from 'typeorm-transactional';
@@ -27,12 +24,8 @@ export class AuthService {
     private readonly userAuthTokenRepository: UserAuthTokenRepository,
   ) {}
 
-  async me({ userId }: UserPayload) {
-    return this.userService.getUserById(userId);
-  }
-
-  async signIn(signInRequest: SignInRequest): Promise<BasicJWTResponseDto> {
-    const user = await this.userService.signIn(signInRequest);
+  async signIn(ssoUserPayload: SsoUserPayload): Promise<BasicJWTResponseDto> {
+    const user = await this.userService.signIn(ssoUserPayload);
     const userJwt = this.makeBasicJWTResponse(user);
     await this.userAuthTokenRepository.save(
       UserAuthToken.of({ userId: user.id, ...userJwt }),
@@ -48,10 +41,10 @@ export class AuthService {
 
   @Transactional()
   async refresh(
-    { userId }: UserPayload,
+    { id }: UserPayload,
     refreshToken: string,
   ): Promise<BasicJWTResponseDto> {
-    const user = await this.userService.getUserById(userId);
+    const user = await this.userService.getUserById(id);
     if (!user) {
       throw new NotFoundError();
     }

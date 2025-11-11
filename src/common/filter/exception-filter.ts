@@ -8,8 +8,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { UserPayload } from 'src/module/auth/type/auth.type';
-import { I18nContext, I18nService } from 'nestjs-i18n';
+import { I18nService } from 'nestjs-i18n';
 import { ValidationError } from 'class-validator';
 import { isAxiosError } from 'axios';
 import { I18N_LANG } from '@common/i18n';
@@ -17,15 +16,13 @@ import { I18N_LANG } from '@common/i18n';
 @Catch()
 export class CustomExceptionFilter implements ExceptionFilter {
   #logger = new Logger(CustomExceptionFilter.name);
-  private readonly teamsUrl = process.env.TEAMS_WEBHOOK_URL;
-
   constructor(private readonly i18n: I18nService) {}
 
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
-    const i18nLang = this.getI18NLang(host);
+    const i18nLang = I18N_LANG.KO;
     if (Array.isArray(exception)) {
       exception = exception[0];
       if (exception instanceof ValidationError) {
@@ -102,12 +99,5 @@ export class CustomExceptionFilter implements ExceptionFilter {
       }
     }
     return { statusCode, message };
-  }
-
-  getI18NLang(host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const request = ctx.getRequest<Request>();
-    const user = request['user'] as UserPayload;
-    return user?.language || I18nContext.current(host)?.lang || I18N_LANG.KO;
   }
 }

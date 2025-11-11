@@ -1,9 +1,14 @@
-import { Body, Controller, Patch, Post, Put, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserService } from '../service/user.service';
 import { AuthUserGuard } from 'src/module/auth/guard/auth.user.guard';
 import { AuthType, UserPayload } from 'src/module/auth/type/auth.type';
-import { PutUserInfoBodyDto, PutUserPasswordBodyDto } from '../dto/user.dto';
+import { GetMyUserResponseDto, PutUserInfoBodyDto } from '../dto/user.dto';
 import { ReqUser } from '@common/decorator';
 
 @UseGuards(AuthUserGuard)
@@ -12,6 +17,21 @@ import { ReqUser } from '@common/decorator';
 @ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @UseGuards(AuthUserGuard)
+  @ApiSecurity(AuthType.USER)
+  @Get('me')
+  @ApiOperation({
+    summary: 'user 정보 확인',
+  })
+  @ApiOkResponse({
+    type: GetMyUserResponseDto,
+  })
+  async me(@ReqUser() user: UserPayload) {
+    return new GetMyUserResponseDto(
+      await this.userService.getUserById(user.id),
+    );
+  }
 
   @Patch('profile')
   @ApiOperation({
@@ -22,27 +42,6 @@ export class UserController {
     @Body() body: PutUserInfoBodyDto,
   ) {
     await this.userService.updateUserInfo(user, body);
-    return;
-  }
-
-  @Put('profile/password')
-  @ApiOperation({
-    summary: '비밀번호 변경',
-  })
-  async updatePassword(
-    @ReqUser() user: UserPayload,
-    @Body() body: PutUserPasswordBodyDto,
-  ) {
-    await this.userService.updatePassword(user, body);
-    return;
-  }
-
-  @Post('profile/password/expiration-snooze')
-  @ApiOperation({
-    summary: '비밀번호 만료일 연장',
-  })
-  async updatePasswordExpirationDate(@ReqUser() user: UserPayload) {
-    await this.userService.extendPasswordExpirationDate(user);
     return;
   }
 }

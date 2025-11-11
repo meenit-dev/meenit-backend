@@ -1,9 +1,5 @@
 import { ReqUser } from '@common/decorator';
-import {
-  BasicJWTResponseDto,
-  SignInRequest,
-  SignUpRequestDto,
-} from '../dto/auth.dto';
+import { BasicJWTResponseDto, SignUpRequestDto } from '../dto/auth.dto';
 import { AuthService } from '../service/auth.service';
 import {
   Body,
@@ -11,21 +7,22 @@ import {
   Get,
   Headers,
   Post,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
-  ApiOkResponse,
   ApiOperation,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthType, UserPayload } from '../type/auth.type';
+import { AuthType, SsoUserPayload, UserPayload } from '../type/auth.type';
 import { AuthUserGuard } from '../guard/auth.user.guard';
 import { AuthRefreshGuard } from '../guard/auth.refresh.guard';
-import { GetMyUserResponseDto } from 'src/module/user/dto/user.dto';
 import { IncomingHttpHeaders } from 'http';
-import { GoogleOAuthGuard } from '../guard/google-oauth.guard';
+import { GoogleGuard } from '../guard/google.guard';
+import { Response } from 'express';
+import { XGuard } from '../guard/x.guard';
 
 @Controller({ path: 'auth', version: '1' })
 @ApiTags('Auth')
@@ -33,27 +30,30 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('google')
-  @UseGuards(GoogleOAuthGuard)
+  @UseGuards(GoogleGuard)
   async googleAuth() {}
 
-  @Get('google/redirect')
-  @UseGuards(GoogleOAuthGuard)
-  googleAuthRedirect(@ReqUser() user: UserPayload) {
-    console.log(user);
-    return;
+  @Get('google/callback')
+  @UseGuards(GoogleGuard)
+  googleCallback(@ReqUser() user: SsoUserPayload) {
+    return this.authService.signIn(user);
   }
 
-  @UseGuards(AuthUserGuard)
-  @ApiSecurity(AuthType.USER)
-  @Get('me')
-  @ApiOperation({
-    summary: 'user 정보 확인',
+  @Get('x')
+  @UseGuards(XGuard)
+  async xAuth(@ReqUser() result: any, @Res() res: Response) {
+    if (result?.redirect) {
+      return res.redirect(result.redirect);
+    }
+  }
+
+  @Get('x/callback')
+  @UseGuards(XGuard)
+  @ApiCreatedResponse({
+    type: BasicJWTResponseDto,
   })
-  @ApiOkResponse({
-    type: GetMyUserResponseDto,
-  })
-  async me(@ReqUser() user: UserPayload) {
-    return new GetMyUserResponseDto(await this.authService.me(user));
+  xCallback(@ReqUser() user: SsoUserPayload) {
+    return this.authService.signIn(user);
   }
 
   @Post('sign-up')
@@ -63,19 +63,6 @@ export class AuthController {
   async signUp(@Body() signUpRequest: SignUpRequestDto) {
     await this.authService.signUp(signUpRequest);
     return;
-  }
-
-  @Post('sign-in')
-  @ApiOperation({
-    summary: '로그인',
-  })
-  @ApiCreatedResponse({
-    type: BasicJWTResponseDto,
-  })
-  async signIn(
-    @Body() signInRequest: SignInRequest,
-  ): Promise<BasicJWTResponseDto> {
-    return this.authService.signIn(signInRequest);
   }
 
   @UseGuards(AuthRefreshGuard)

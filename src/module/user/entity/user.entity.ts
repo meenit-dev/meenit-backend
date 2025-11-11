@@ -1,5 +1,5 @@
 import { CommonBaseEntity } from 'src/common/entity/common-base.entity';
-import { Column, Entity, Index } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { PutUserInfoBodyDto } from '../dto/user.dto';
 
@@ -9,11 +9,16 @@ export class User extends CommonBaseEntity {
   name: string;
 
   @Column({ nullable: false, type: String })
-  @Index({ unique: true })
   email: string;
 
   @Column({ nullable: true, type: String })
   avatar: string | null;
+
+  @Column({ name: 'google_id', nullable: true, type: String })
+  googleId: string | null;
+
+  @Column({ name: 'x_id', nullable: true, type: String })
+  xId: string | null;
 
   static of(createRequest: SignUpRequestDto): User {
     const user = new User();
