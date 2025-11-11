@@ -10,6 +10,7 @@ import * as path from 'path';
 import { APP_FILTER } from '@nestjs/core';
 import { CustomExceptionFilter } from '@common/filter/exception-filter';
 import { setProcessErrorHandling } from '@common/filter/util';
+import { StorageModule } from './module/storage/storage.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { setProcessErrorHandling } from '@common/filter/util';
     DatabaseModule,
     AuthModule,
     UserModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_FILTER, useClass: CustomExceptionFilter }],

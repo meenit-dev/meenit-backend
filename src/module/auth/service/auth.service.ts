@@ -95,8 +95,8 @@ export class AuthService {
 
   makeBasicJWTResponse(user: User) {
     const payload = {
-      userId: user.id,
-      userName: user.name,
+      id: user.id,
+      name: user.name,
       email: user.email,
     };
 
