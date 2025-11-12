@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Put, UseGuards } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -8,7 +8,14 @@ import {
 import { UserService } from '../service/user.service';
 import { AuthUserGuard } from 'src/module/auth/guard/auth.user.guard';
 import { AuthType, UserPayload } from 'src/module/auth/type/auth.type';
-import { GetMyUserResponseDto, PutUserInfoBodyDto } from '../dto/user.dto';
+import {
+  GetMyUserProfileResponseDto,
+  GetMyUserResponseDto,
+  GetUserAccountResponseDto,
+  PatchUserInfoBodyDto,
+  PutUserAccountBodyDto,
+  PutUserPhoneBodyDto,
+} from '../dto/user.dto';
 import { ReqUser } from '@common/decorator';
 
 @UseGuards(AuthUserGuard)
@@ -18,12 +25,8 @@ import { ReqUser } from '@common/decorator';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(AuthUserGuard)
-  @ApiSecurity(AuthType.USER)
   @Get('me')
-  @ApiOperation({
-    summary: 'user 정보 확인',
-  })
+  @ApiOperation({ summary: 'user 정보 확인' })
   @ApiOkResponse({
     type: GetMyUserResponseDto,
   })
@@ -33,15 +36,53 @@ export class UserController {
     );
   }
 
-  @Patch('profile')
+  @Get('me/profile')
+  @ApiOperation({ summary: 'user 프로필 정보 확인' })
+  @ApiOkResponse({
+    type: GetMyUserProfileResponseDto,
+  })
+  async getUserInfo(@ReqUser() user: UserPayload) {
+    return new GetMyUserProfileResponseDto(
+      await this.userService.getUserWithProfileById(user.id),
+    );
+  }
+
+  @Patch('me/profile')
   @ApiOperation({
     summary: '유저 정보 변경',
   })
   async updateUserInfo(
     @ReqUser() user: UserPayload,
-    @Body() body: PutUserInfoBodyDto,
+    @Body() body: PatchUserInfoBodyDto,
   ) {
     await this.userService.updateUserInfo(user, body);
     return;
+  }
+
+  @Put('me/phone')
+  @ApiOperation({ summary: '전화번호 등록/변경' })
+  async updateUserPhone(
+    @ReqUser() user: UserPayload,
+    @Body() body: PutUserPhoneBodyDto,
+  ) {
+    await this.userService.updateUserPhone(user.id, body.phone);
+  }
+
+  @Put('me/account')
+  @ApiOperation({ summary: '계좌 정보 등록/변경' })
+  async updateUserAccount(
+    @ReqUser() user: UserPayload,
+    @Body() body: PutUserAccountBodyDto,
+  ) {
+    await this.userService.updateUserAccount(user.id, body);
+  }
+
+  @Get('me/account')
+  @ApiOperation({ summary: '계좌 정보 조회' })
+  @ApiOkResponse({ type: GetUserAccountResponseDto })
+  async getUserAccount(@ReqUser() user: UserPayload) {
+    return new GetUserAccountResponseDto(
+      await this.userService.getUserAccountByUserId(user.id),
+    );
   }
 }

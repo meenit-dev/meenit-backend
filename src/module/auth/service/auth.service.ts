@@ -15,6 +15,7 @@ import { User } from 'src/module/user/entity/user.entity';
 import { UserAuthTokenRepository } from '../repository/user.auth.token.repository';
 import { UserAuthToken } from '../entity/user.auth.token.entity';
 import { BadRequestError, NotFoundError } from '@common/error';
+import { GetMyUserResponseDto } from 'src/module/user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -108,12 +109,7 @@ export class AuthService {
     });
 
     return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-      },
+      user: new GetMyUserResponseDto(user),
       accessToken,
       refreshToken,
     };

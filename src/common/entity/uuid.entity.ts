@@ -1,7 +1,8 @@
+import { UUID } from '@common/type';
 import { PrimaryGeneratedColumn } from 'typeorm';
 import { v7 } from 'uuid';
 
 export class UUIDEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string = v7();
+  id: UUID = v7();
 }

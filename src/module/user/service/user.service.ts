@@ -2,20 +2,34 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
 import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { User } from '../entity/user.entity';
-import { PutUserInfoBodyDto } from '../dto/user.dto';
+import { PatchUserInfoBodyDto, PutUserAccountBodyDto } from '../dto/user.dto';
 import { SsoProvider, UserPayload } from 'src/module/auth/type/auth.type';
-import { NotFoundError } from '@common/error';
+import { DuplicatedError, NotFoundError } from '@common/error';
+import { UserProfileRepository } from '../repository/user.profile.repository';
+import { UserProfile } from '../entity/user.profile.entity';
+import { Transactional } from 'typeorm-transactional';
+import { UUID } from '@common/type';
+import { AccountRepository } from '../repository/account.repository';
+import { Account } from '../entity/account.entity';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly userProfileRepository: UserProfileRepository,
+    private readonly accountRepository: AccountRepository,
+  ) {}
 
   async getUserById(id: string) {
-    return this.userRepository.findOneById(id);
+    const user = await this.userRepository.findOneById(id);
+    if (!user) {
+      throw new NotFoundError();
+    }
+    return user;
   }
 
-  async getUserByEmail(email: string) {
-    return this.userRepository.findOneByEmail(email);
+  async getUserWithProfileById(id: string) {
+    return this.userRepository.findOneWithProfileById(id);
   }
 
   async getUserByProviderAndProviderId(
@@ -29,15 +43,53 @@ export class UserService {
   }
 
   async createUser(signUpRequest: SignUpRequestDto) {
-    return this.userRepository.save(User.of(signUpRequest));
+    const user = await this.userRepository.save(User.of(signUpRequest));
+    await this.userProfileRepository.save(UserProfile.of(user.id));
+    return user;
   }
 
-  async updateUserInfo({ id }: UserPayload, body: PutUserInfoBodyDto) {
-    const user = await this.userRepository.findOneById(id);
-    if (!user) {
+  @Transactional()
+  async updateUserInfo(
+    { id }: UserPayload,
+    updateRequest: PatchUserInfoBodyDto,
+  ) {
+    const user = await this.getUserById(id);
+    if (updateRequest.handle) {
+      if (await this.userRepository.findOneByHandle(updateRequest.handle)) {
+        throw new DuplicatedError();
+      }
+    }
+    await this.userRepository.save(user.update(updateRequest));
+    const userProfile = await this.userProfileRepository.findOneByUserId(
+      user.id,
+    );
+    await this.userProfileRepository.save(userProfile.update(updateRequest));
+  }
+
+  async updateUserPhone(userId: UUID, phone: string) {
+    const user = await this.getUserById(userId);
+    await this.userRepository.save(user.updatePhone(phone));
+  }
+
+  @Transactional()
+  async updateUserAccount(userId: UUID, updateAccount: PutUserAccountBodyDto) {
+    const user = await this.getUserById(userId);
+    const account = await this.accountRepository.findOneByUserId(user.id);
+    if (!account) {
+      await this.userRepository.save(user.toCreator());
+      await this.accountRepository.save(
+        Account.of({ ...updateAccount, userId }),
+      );
+    } else {
+      await this.accountRepository.save(account.update(updateAccount));
+    }
+  }
+
+  async getUserAccountByUserId(userId: UUID) {
+    const account = await this.accountRepository.findOneByUserId(userId);
+    if (!account) {
       throw new NotFoundError();
     }
-
-    await this.userRepository.save(user.update(body));
+    return account;
   }
 }

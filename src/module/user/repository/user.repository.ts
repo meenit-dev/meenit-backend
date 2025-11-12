@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { CommonRepository } from '@common/repository/common.repository';
 import { SsoProvider } from 'src/module/auth/type/auth.type';
+import { UUID } from '@common/type';
 
 @Injectable()
 export class UserRepository extends CommonRepository<User> {
@@ -15,6 +16,15 @@ export class UserRepository extends CommonRepository<User> {
     super();
   }
 
+  async findOneWithProfileById(id: UUID) {
+    return this.repository.findOne({
+      where: { id: id },
+      relations: {
+        profile: true,
+      },
+    });
+  }
+
   async findOneByProviderAndProviderId(
     provider: SsoProvider,
     providerId: string,
@@ -24,13 +34,13 @@ export class UserRepository extends CommonRepository<User> {
     });
   }
 
-  async findOneByEmail(email: string): Promise<User | null> {
+  async findOneByHandle(handle: string): Promise<User | null> {
     return this.repository.findOne({
-      where: { email },
+      where: { handle },
     });
   }
 
-  async findUsersByIdsAndIsDeleted(ids: string[], isDeleted: boolean) {
+  async findUsersByIdsAndIsDeleted(ids: UUID[], isDeleted: boolean) {
     return this.repository.find({
       where: { id: In(ids) },
       withDeleted: isDeleted,

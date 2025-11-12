@@ -46,7 +46,7 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
 
     // 3) Token 교환
     const tokenRes = await axios.post(
-      'https://api.twitter.com/2/oauth2/token',
+      'https://api.x.com/2/oauth2/token',
       new URLSearchParams({
         grant_type: 'authorization_code',
         client_id: process.env.X_CLIENT_ID,
@@ -61,7 +61,7 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
 
     // 4) 사용자 정보 조회
     const profileRes = await axios.get(
-      'https://api.twitter.com/2/users/me?user.fields=id,name,profile_image_url',
+      'https://api.x.com/2/users/me?user.fields=id,name,profile_image_url',
       { headers: { Authorization: `Bearer ${access_token}` } },
     );
 
@@ -72,7 +72,7 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
       id: profile.id,
       name: profile.name,
       avatar: profile.profile_image_url,
-      email: '',
+      email: profile.email ?? '',
     } as SsoUserPayload;
   }
 }

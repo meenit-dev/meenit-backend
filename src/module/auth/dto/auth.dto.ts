@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
+import { GetMyUserResponseDto } from 'src/module/user/dto/user.dto';
 
 export class SsoSignUpQueryDto {
   @ApiProperty({
@@ -27,39 +28,12 @@ export interface SignUpRequestDto {
   xId?: string;
 }
 
-export class LoginUserDto {
-  @ApiProperty({
-    description: '유저 고유 아이디',
-    example: 'userId',
-  })
-  id: string;
-
-  @ApiProperty({
-    description: '유저 이름',
-    example: '홍길동',
-  })
-  name: string;
-
-  @ApiProperty({
-    description: '유저 이메일',
-    example: 'aiv@aiv.ai',
-  })
-  email: string;
-
-  @ApiProperty({
-    description: '유저 아바타 이미지 url',
-    example: 'https://rs.aiv.ai/users/{userId}/profile/avatar.jpg',
-    nullable: true,
-  })
-  avatar: string | null;
-}
-
 export class BasicJWTResponseDto {
   @ApiProperty({
     description: '로그인한 유저 정보',
-    type: LoginUserDto,
+    type: GetMyUserResponseDto,
   })
-  user: LoginUserDto;
+  user: GetMyUserResponseDto;
 
   @ApiProperty({
     description: 'accessToken',
