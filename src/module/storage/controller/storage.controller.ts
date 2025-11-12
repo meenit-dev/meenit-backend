@@ -1,10 +1,18 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Put, UseGuards } from '@nestjs/common';
 import { StorageService } from '../service/storage.service';
 import { AuthUserGuard } from 'src/module/auth/guard/auth.user.guard';
 import { AuthType, UserPayload } from 'src/module/auth/type/auth.type';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ReqUser } from '@common/decorator';
-import { PostPreSignedUrlBodyDto } from '../dto/storage.dto';
+import {
+  PutPreSignedUrlBodyDto,
+  PutPreSignedUrlResponseDto,
+} from '../dto/storage.dto';
 
 @UseGuards(AuthUserGuard)
 @ApiSecurity(AuthType.USER)
@@ -13,17 +21,21 @@ import { PostPreSignedUrlBodyDto } from '../dto/storage.dto';
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
-  @Post('pre-signed')
+  @Put('pre-signed')
+  @ApiOperation({
+    summary: 'Presigned Url 발급',
+  })
+  @ApiOkResponse({ type: PutPreSignedUrlResponseDto })
   async getUploadUrl(
     @ReqUser() user: UserPayload,
-    @Body() body: PostPreSignedUrlBodyDto,
+    @Body() body: PutPreSignedUrlBodyDto,
   ) {
-    console.log(user);
     return this.storageService.getUploadPostUrl(
       user,
       body.type,
       body.mimeType,
       body.extention,
+      body.contentLength,
     );
   }
 }

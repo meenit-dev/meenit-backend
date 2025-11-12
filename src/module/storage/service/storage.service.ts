@@ -6,9 +6,9 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { STORAGE_PROVIDER, StorageType } from '../type/storage.type';
-import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { UserPayload } from 'src/module/auth/type/auth.type';
 import { v7 } from 'uuid';
+import { BadRequestError } from '@common/error';
 
 @Injectable()
 export class StorageService {
@@ -26,7 +26,7 @@ export class StorageService {
         return {
           acl: ObjectCannedACL.public_read,
           path: `users/${user.id}/commission/${v7()}.${extention}`,
-          maxSizeBytes: 5242880, // 5MB
+          maxSizeBytes: 5242880, //5242880, // 5MB
         };
       case StorageType.PORTFOLIO:
         return {
@@ -48,6 +48,7 @@ export class StorageService {
     type: StorageType,
     mimeType: string,
     extention: string,
+    contentLength: number,
   ) {
     const bucket = process.env.NCP_BUCKET;
     const { acl, path, maxSizeBytes } = this.getStorageFileMeta(
@@ -56,34 +57,23 @@ export class StorageService {
       extention,
     );
 
-    // const result = await createPresignedPost(this.s3Client, {
-    //   Bucket: bucket,
-    //   Key: path,
-    //   Fields: {
-    //     'Content-Type': mimeType,
-    //     'x-amz-acl': acl,
-    //   },
-    //   Conditions: [
-    //     { 'Content-Type': mimeType },
-    //     { 'x-amz-acl': acl },
-    //     ['content-length-range', 0, maxSizeBytes],
-    //   ],
-    //   Expires: 300,
-    // });
-    // console.log(result);
-    // console.log(`${process.env.NCP_ENDPOINT}/${bucket}/${path}`);
-
+    if (contentLength > maxSizeBytes) {
+      throw new BadRequestError();
+    }
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: path,
       ContentType: mimeType,
       ACL: acl,
-      // ContentLength: maxSizeBytes,
+      ContentLength: 82903,
     });
 
-    return getSignedUrl(this.s3Client, command, {
-      expiresIn: 300,
-    });
+    return {
+      presignedUrl: await getSignedUrl(this.s3Client, command, {
+        expiresIn: 300,
+      }),
+      publicUrl: `https://${bucket}.kr.object.ncloudstorage.com/${path}`,
+    };
   }
 
   async getDownloadUrl(fileKey: string) {

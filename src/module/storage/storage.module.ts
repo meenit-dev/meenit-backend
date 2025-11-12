@@ -9,15 +9,6 @@ import { StorageService } from './service/storage.service';
     {
       provide: STORAGE_PROVIDER,
       useFactory: () => {
-        console.log({
-          region: process.env.NCP_REGION,
-          credentials: {
-            accessKeyId: process.env.NCP_ACCESS_KEY,
-            secretAccessKey: process.env.NCP_SECRET_KEY,
-          },
-          endpoint: process.env.NCP_ENDPOINT,
-          forcePathStyle: true,
-        });
         return new S3Client({
           region: process.env.NCP_REGION,
           credentials: {
@@ -25,7 +16,6 @@ import { StorageService } from './service/storage.service';
             secretAccessKey: process.env.NCP_SECRET_KEY,
           },
           endpoint: process.env.NCP_ENDPOINT,
-          forcePathStyle: true,
         });
       },
     },
