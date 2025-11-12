@@ -1,12 +1,7 @@
 import { ReqUser } from '@common/decorator';
-import {
-  BasicJWTResponseDto,
-  SignUpRequestDto,
-  SsoSignUpQueryDto,
-} from '../dto/auth.dto';
+import { BasicJWTResponseDto, SsoSignUpQueryDto } from '../dto/auth.dto';
 import { AuthService } from '../service/auth.service';
 import {
-  Body,
   Controller,
   Get,
   Headers,
@@ -43,9 +38,19 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleGuard)
-  googleCallback(@Req() req, @ReqUser() user: SsoUserPayload) {
-    const { name } = JSON.parse(decodeURIComponent(req.query.state));
-    return this.authService.signIn(user, name);
+  async googleCallback(
+    @Res() res: Response,
+    @Req() req,
+    @ReqUser() user: SsoUserPayload,
+  ) {
+    const { name, redirect } = JSON.parse(
+      decodeURIComponent(req.query.state),
+    ) as SsoSignUpQueryDto;
+    const { refreshToken } = await this.authService.signIn(user, name);
+    const { origin } = new URL(redirect);
+    return res.redirect(
+      `${origin}/refresh?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
+    );
   }
 
   @Get('x')
@@ -66,18 +71,19 @@ export class AuthController {
   @ApiCreatedResponse({
     type: BasicJWTResponseDto,
   })
-  xCallback(@Req() req, @ReqUser() user: SsoUserPayload) {
-    const { name } = JSON.parse(decodeURIComponent(req.query.state));
-    return this.authService.signIn(user, name);
-  }
-
-  @Post('sign-up')
-  @ApiOperation({
-    summary: '회원가입',
-  })
-  async signUp(@Body() signUpRequest: SignUpRequestDto) {
-    await this.authService.signUp(signUpRequest);
-    return;
+  async xCallback(
+    @Res() res: Response,
+    @Req() req,
+    @ReqUser() user: SsoUserPayload,
+  ) {
+    const { name, redirect } = JSON.parse(
+      decodeURIComponent(req.query.state),
+    ) as SsoSignUpQueryDto;
+    const { refreshToken } = await this.authService.signIn(user, name);
+    const { origin } = new URL(redirect);
+    return res.redirect(
+      `${origin}/refresh?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
+    );
   }
 
   @UseGuards(AuthRefreshGuard)

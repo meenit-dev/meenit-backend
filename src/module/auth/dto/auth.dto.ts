@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class SsoSignUpQueryDto {
   @ApiProperty({
@@ -8,7 +8,15 @@ export class SsoSignUpQueryDto {
     required: false,
   })
   @IsOptional()
+  @IsString()
   name?: string;
+
+  @ApiProperty({
+    description: '로그인 성공 시 리다이렉트 할 url',
+    example: 'https://meenit.com',
+  })
+  @IsString()
+  redirect: string;
 }
 
 export interface SignUpRequestDto {

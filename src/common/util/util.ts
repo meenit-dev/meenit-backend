@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
 
-export const IsProduction = process.env.APP_ENV === 'prd';
+export const IsProduction = process.env.NODE_ENV === 'production';
 
 export function encryptSha512(password: string, salt: string) {
   return crypto

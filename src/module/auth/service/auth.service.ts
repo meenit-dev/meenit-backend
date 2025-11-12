@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/service/user.service';
-import { BasicJWTResponseDto, SignUpRequestDto } from '../dto/auth.dto';
+import { BasicJWTResponseDto } from '../dto/auth.dto';
 import {
   getJwtAccessExpiration,
   getJwtAccessSecret,
@@ -24,6 +24,7 @@ export class AuthService {
     private readonly userAuthTokenRepository: UserAuthTokenRepository,
   ) {}
 
+  @Transactional()
   async signIn(
     ssoUserPayload: SsoUserPayload,
     name?: string,
@@ -37,7 +38,7 @@ export class AuthService {
         return user;
       }
       if (name) {
-        return this.signUp({
+        return this.userService.createUser({
           email: ssoUserPayload.email,
           name,
           avatar: ssoUserPayload.avatar,
@@ -47,16 +48,11 @@ export class AuthService {
         throw new NotFoundError();
       }
     })();
-    const userJwt = this.makeBasicJWTResponse(user);
+    const userJwt = this.makeBasicJWTResponse(user, 30);
     await this.userAuthTokenRepository.save(
       UserAuthToken.of({ userId: user.id, ...userJwt }),
     );
     return userJwt;
-  }
-
-  @Transactional()
-  async signUp(dto: SignUpRequestDto) {
-    return this.userService.createUser(dto);
   }
 
   @Transactional()
@@ -93,7 +89,7 @@ export class AuthService {
     }
   }
 
-  makeBasicJWTResponse(user: User) {
+  makeBasicJWTResponse(user: User, refreshTokenExpires?: number) {
     const payload = {
       id: user.id,
       name: user.name,
@@ -106,7 +102,9 @@ export class AuthService {
     });
     const refreshToken = this.jwtService.sign(payload, {
       secret: getJwtRefreshSecret(),
-      expiresIn: `${getJwtRefreshExpiration()}s`,
+      expiresIn: refreshTokenExpires
+        ? `${refreshTokenExpires}s`
+        : `${getJwtRefreshExpiration()}s`,
     });
 
     return {

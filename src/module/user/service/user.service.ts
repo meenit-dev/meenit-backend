@@ -4,7 +4,7 @@ import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { User } from '../entity/user.entity';
 import { PutUserInfoBodyDto } from '../dto/user.dto';
 import { SsoProvider, UserPayload } from 'src/module/auth/type/auth.type';
-import { NotFoundError, SignupFailedError } from '@common/error';
+import { NotFoundError } from '@common/error';
 
 @Injectable()
 export class UserService {
@@ -29,10 +29,6 @@ export class UserService {
   }
 
   async createUser(signUpRequest: SignUpRequestDto) {
-    if (await this.userRepository.findOneByEmail(signUpRequest.email)) {
-      throw new SignupFailedError();
-    }
-
     return this.userRepository.save(User.of(signUpRequest));
   }
 

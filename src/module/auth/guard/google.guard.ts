@@ -11,10 +11,10 @@ export class GoogleGuard extends AuthGuard('google') {
 
   getAuthenticateOptions(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
-    const { name } = request.query;
+    const { name, redirect } = request.query;
     return {
       scope: ['email', 'profile'],
-      state: encodeURIComponent(JSON.stringify({ name })),
+      state: encodeURIComponent(JSON.stringify({ name, redirect })),
     };
   }
 }
