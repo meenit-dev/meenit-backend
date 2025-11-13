@@ -11,6 +11,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { CustomExceptionFilter } from '@common/filter/exception-filter';
 import { setProcessErrorHandling } from '@common/filter/util';
 import { StorageModule } from './module/storage/storage.module';
+import { MailModule } from './module/mail/mail.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { StorageModule } from './module/storage/storage.module';
     AuthModule,
     UserModule,
     StorageModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_FILTER, useClass: CustomExceptionFilter }],
