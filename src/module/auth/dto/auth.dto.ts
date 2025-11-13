@@ -18,6 +18,13 @@ export class SsoSignUpQueryDto {
   })
   @IsString()
   redirect: string;
+
+  @ApiProperty({
+    description: '로그인 실패 시 리다이렉트 할 url',
+    example: 'https://meenit.com',
+  })
+  @IsString()
+  failedRedirect: string;
 }
 
 export interface SignUpRequestDto {

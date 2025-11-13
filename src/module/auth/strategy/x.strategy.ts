@@ -13,13 +13,13 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
   }
 
   async validate(req: Request): Promise<any> {
-    const { code, state, name, redirect } = req.query;
+    const { code, state, name, redirect, failedRedirect } = req.query;
 
     // 1) 로그인 초기 요청
     if (!code) {
       const codeVerifier = crypto.randomBytes(32).toString('base64');
 
-      const state = { codeVerifier, name, redirect };
+      const state = { codeVerifier, name, redirect, failedRedirect };
 
       const authorizeUrl = new URL('https://twitter.com/i/oauth2/authorize');
       authorizeUrl.searchParams.set('response_type', 'code');

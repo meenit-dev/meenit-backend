@@ -25,6 +25,7 @@ import { IncomingHttpHeaders } from 'http';
 import { GoogleGuard } from '../guard/google.guard';
 import { Response } from 'express';
 import { XGuard } from '../guard/x.guard';
+import { NotFoundError } from '@common/error';
 
 @Controller({ path: 'auth', version: '1' })
 @ApiTags('Auth')
@@ -43,14 +44,22 @@ export class AuthController {
     @Req() req,
     @ReqUser() user: SsoUserPayload,
   ) {
-    const { name, redirect } = JSON.parse(
+    const { name, redirect, failedRedirect } = JSON.parse(
       decodeURIComponent(req.query.state),
     ) as SsoSignUpQueryDto;
-    const { refreshToken } = await this.authService.signIn(user, name);
-    const { origin } = new URL(redirect);
-    return res.redirect(
-      `${origin}/refresh?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
-    );
+    try {
+      const { origin } = new URL(redirect);
+      const { refreshToken } = await this.authService.signIn(user, name);
+      return res.redirect(
+        `${origin}/login/success?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
+      );
+    } catch (error) {
+      const { origin } = new URL(failedRedirect);
+      const requiredSignUp = error instanceof NotFoundError;
+      return res.redirect(
+        `${origin}/login/fail?requiredSignUp=${requiredSignUp}&redirect=${encodeURIComponent(failedRedirect)}`,
+      );
+    }
   }
 
   @Get('x')
@@ -73,14 +82,22 @@ export class AuthController {
     @Req() req,
     @ReqUser() user: SsoUserPayload,
   ) {
-    const { name, redirect } = JSON.parse(
+    const { name, redirect, failedRedirect } = JSON.parse(
       decodeURIComponent(req.query.state),
     ) as SsoSignUpQueryDto;
-    const { refreshToken } = await this.authService.signIn(user, name);
-    const { origin } = new URL(redirect);
-    return res.redirect(
-      `${origin}/refresh?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
-    );
+    try {
+      const { origin } = new URL(redirect);
+      const { refreshToken } = await this.authService.signIn(user, name);
+      return res.redirect(
+        `${origin}/login/success?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
+      );
+    } catch (error) {
+      const { origin } = new URL(failedRedirect);
+      const requiredSignUp = error instanceof NotFoundError;
+      return res.redirect(
+        `${origin}/login/fail?requiredSignUp=${requiredSignUp}&redirect=${encodeURIComponent(failedRedirect)}`,
+      );
+    }
   }
 
   @UseGuards(AuthRefreshGuard)
