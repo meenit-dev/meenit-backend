@@ -10,7 +10,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_REDIRECT_URL,
-      scope: ['email', 'profile'],
+      scope: ['profile'],
     });
   }
 
@@ -20,11 +20,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback,
   ) {
-    const { id, displayName, emails, photos } = profile;
+    const { id, displayName, photos } = profile;
     const user: SsoUserPayload = {
       provider: SsoProvider.GOOGLE,
       id,
-      email: emails[0].value,
       name: displayName,
       avatar: photos[0].value,
     };

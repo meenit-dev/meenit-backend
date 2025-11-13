@@ -13,13 +13,21 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
   }
 
   async validate(req: Request): Promise<any> {
-    const { code, state, name, redirect, failedRedirect } = req.query;
+    const { code, state, name, email, emailCode, redirect, failedRedirect } =
+      req.query;
 
     // 1) 로그인 초기 요청
     if (!code) {
       const codeVerifier = crypto.randomBytes(32).toString('base64');
 
-      const state = { codeVerifier, name, redirect, failedRedirect };
+      const state = {
+        codeVerifier,
+        name,
+        email,
+        emailCode,
+        redirect,
+        failedRedirect,
+      };
 
       const authorizeUrl = new URL('https://twitter.com/i/oauth2/authorize');
       authorizeUrl.searchParams.set('response_type', 'code');
@@ -40,8 +48,9 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
     }
 
     // 2) Callback 요청 → state 검증
-    const decoded: { codeVerifier: string; name?: string; redirect: string } =
-      JSON.parse(decodeURIComponent(state as string));
+    const decoded: { codeVerifier: string } = JSON.parse(
+      decodeURIComponent(state as string),
+    );
     const codeVerifier = decoded.codeVerifier;
 
     // 3) Token 교환
@@ -72,7 +81,6 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
       id: profile.id,
       name: profile.name,
       avatar: profile.profile_image_url,
-      email: profile.email ?? '',
     } as SsoUserPayload;
   }
 }

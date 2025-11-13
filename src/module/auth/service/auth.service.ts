@@ -16,6 +16,9 @@ import { UserAuthTokenRepository } from '../repository/user.auth.token.repositor
 import { UserAuthToken } from '../entity/user.auth.token.entity';
 import { BadRequestError, NotFoundError } from '@common/error';
 import { GetMyUserResponseDto } from 'src/module/user/dto/user.dto';
+import { MailService } from 'src/module/mail/service/mail.service';
+import { EmailVerificationRepository } from '../repository/email.verification.verification.repository';
+import { EmailVerification } from '../entity/email.verification.entity';
 
 @Injectable()
 export class AuthService {
@@ -23,12 +26,18 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly userAuthTokenRepository: UserAuthTokenRepository,
+    private readonly emailVerificationRepository: EmailVerificationRepository,
+    private readonly mailService: MailService,
   ) {}
 
   @Transactional()
   async signIn(
     ssoUserPayload: SsoUserPayload,
-    name?: string,
+    singUpRequest?: {
+      name: string;
+      email: string;
+      code: string;
+    },
   ): Promise<BasicJWTResponseDto> {
     const user = await (async () => {
       const user = await this.userService.getUserByProviderAndProviderId(
@@ -38,10 +47,15 @@ export class AuthService {
       if (user) {
         return user;
       }
-      if (name) {
+      if (singUpRequest) {
+        const emailVerification = await this.validationEmailVerificationCode(
+          singUpRequest.email,
+          singUpRequest.code,
+        );
+        await this.emailVerificationRepository.save(emailVerification.use());
         return this.userService.createUser({
-          email: ssoUserPayload.email,
-          name,
+          email: singUpRequest.email,
+          name: singUpRequest.name,
           avatar: ssoUserPayload.avatar,
           [`${ssoUserPayload.provider}Id`]: ssoUserPayload.id,
         });
@@ -88,6 +102,30 @@ export class AuthService {
     if (userAuthToken) {
       await this.userAuthTokenRepository.softDeleteById(userAuthToken.id);
     }
+  }
+
+  async sendEmailVerificationCode(email: string) {
+    await this.emailVerificationRepository.deleteNoUsedByEmail(email);
+    const emailVerification = await this.emailVerificationRepository.save(
+      EmailVerification.of(email),
+    );
+    await this.mailService.sendEmailCertificationMail(
+      email,
+      emailVerification.code,
+      5,
+    );
+  }
+
+  async validationEmailVerificationCode(email: string, code: string) {
+    const emailVerification =
+      await this.emailVerificationRepository.findOneNoUsedByEmailAndCode(
+        email,
+        code,
+      );
+    if (!emailVerification) {
+      throw new BadRequestError();
+    }
+    return emailVerification;
   }
 
   makeBasicJWTResponse(user: User, refreshTokenExpires?: number) {

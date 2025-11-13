@@ -1,7 +1,13 @@
 import { ReqUser } from '@common/decorator';
-import { BasicJWTResponseDto, SsoSignUpQueryDto } from '../dto/auth.dto';
+import {
+  BasicJWTResponseDto,
+  PostEmailCodeBodyDto,
+  PostEmailCodeValidationBodyDto,
+  SsoSignUpQueryDto,
+} from '../dto/auth.dto';
 import { AuthService } from '../service/auth.service';
 import {
+  Body,
   Controller,
   Get,
   Headers,
@@ -44,12 +50,16 @@ export class AuthController {
     @Req() req,
     @ReqUser() user: SsoUserPayload,
   ) {
-    const { name, redirect, failedRedirect } = JSON.parse(
+    const { name, email, emailCode, redirect, failedRedirect } = JSON.parse(
       decodeURIComponent(req.query.state),
     ) as SsoSignUpQueryDto;
     try {
       const { origin } = new URL(redirect);
-      const { refreshToken } = await this.authService.signIn(user, name);
+      const { refreshToken } = await this.authService.signIn(user, {
+        name,
+        email,
+        code: emailCode,
+      });
       return res.redirect(
         `${origin}/login/success?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
       );
@@ -82,12 +92,16 @@ export class AuthController {
     @Req() req,
     @ReqUser() user: SsoUserPayload,
   ) {
-    const { name, redirect, failedRedirect } = JSON.parse(
+    const { name, email, emailCode, redirect, failedRedirect } = JSON.parse(
       decodeURIComponent(req.query.state),
     ) as SsoSignUpQueryDto;
     try {
       const { origin } = new URL(redirect);
-      const { refreshToken } = await this.authService.signIn(user, name);
+      const { refreshToken } = await this.authService.signIn(user, {
+        name,
+        email,
+        code: emailCode,
+      });
       return res.redirect(
         `${origin}/login/success?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
       );
@@ -124,6 +138,29 @@ export class AuthController {
   })
   async signOut(@Headers() headers: IncomingHttpHeaders) {
     await this.authService.signOut(headers.authorization.split(' ')[1]);
+    return;
+  }
+
+  @Post('email/code')
+  @ApiOperation({
+    summary: '이메일 인증 메일 전송',
+  })
+  async sendEmailVerificationCode(@Body() body: PostEmailCodeBodyDto) {
+    await this.authService.sendEmailVerificationCode(body.email);
+    return;
+  }
+
+  @Post('email/code/validation')
+  @ApiOperation({
+    summary: '이메일 인증 코드 검증',
+  })
+  async validationEmailVerificationCode(
+    @Body() body: PostEmailCodeValidationBodyDto,
+  ) {
+    await this.authService.validationEmailVerificationCode(
+      body.email,
+      body.emailCode,
+    );
     return;
   }
 }

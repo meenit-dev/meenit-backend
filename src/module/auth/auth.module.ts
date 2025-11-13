@@ -11,12 +11,16 @@ import { UserAuthToken } from './entity/user.auth.token.entity';
 import { AuthController } from './controller/auth.controller';
 import { GoogleStrategy } from './strategy/google.strategy';
 import { XStrategy } from './strategy/x.strategy';
+import { MailModule } from '../mail/mail.module';
+import { EmailVerificationRepository } from './repository/email.verification.verification.repository';
+import { EmailVerification } from './entity/email.verification.entity';
 
 @Module({
   imports: [
     JwtModule.register({}),
-    TypeOrmModule.forFeature([UserAuthToken]),
+    TypeOrmModule.forFeature([UserAuthToken, EmailVerification]),
     UserModule,
+    MailModule,
   ],
   providers: [
     AuthService,
@@ -26,6 +30,7 @@ import { XStrategy } from './strategy/x.strategy';
     XStrategy,
     UserAuthTokenRepository,
     CommonHttpRepository,
+    EmailVerificationRepository,
   ],
   exports: [AuthService],
   controllers: [AuthController],

@@ -8,7 +8,6 @@ export interface SsoUserPayload {
   provider: SsoProvider;
   id: string;
   name: string;
-  email: string;
   avatar: string;
 }
 

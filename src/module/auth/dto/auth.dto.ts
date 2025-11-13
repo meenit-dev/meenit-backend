@@ -13,6 +13,24 @@ export class SsoSignUpQueryDto {
   name?: string;
 
   @ApiProperty({
+    description: '회원가입 시 유저 이메일',
+    example: 'hong@email.com',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @ApiProperty({
+    description: '회원가입 발급받은 이메일 인증 코드',
+    example: '123456',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  emailCode?: string;
+
+  @ApiProperty({
     description: '로그인 성공 시 리다이렉트 할 url',
     example: 'https://meenit.com',
   })
@@ -53,6 +71,31 @@ export class BasicJWTResponseDto {
     example: 'refreshToken',
   })
   refreshToken: string;
+}
+
+export class PostEmailCodeBodyDto {
+  @ApiProperty({
+    description: '회원가입 시 유저 이메일',
+    example: 'hong@email.com',
+  })
+  @IsString()
+  email: string;
+}
+
+export class PostEmailCodeValidationBodyDto {
+  @ApiProperty({
+    description: '회원가입 시 유저 이메일',
+    example: 'hong@email.com',
+  })
+  @IsString()
+  email: string;
+
+  @ApiProperty({
+    description: '회원가입 발급받은 이메일 인증 코드',
+    example: '123456',
+  })
+  @IsString()
+  emailCode: string;
 }
 
 export interface CreateUserAuthTokenDto {
