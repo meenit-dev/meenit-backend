@@ -4,6 +4,14 @@ import { User } from '../entity/user.entity';
 import { UserType } from '../type/user.type';
 import { Account } from '../entity/account.entity';
 
+export class UserHandleParamDto {
+  @ApiProperty({
+    description: 'user 고유 인식 값',
+    example: 'Hong1',
+  })
+  handle: string;
+}
+
 export class GetMyUserResponseDto {
   @ApiProperty({
     description: '유저 고유 아이디',

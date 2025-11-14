@@ -1,13 +1,24 @@
-import { Controller, UseGuards } from '@nestjs/common';
-import { ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserService } from '../service/user.service';
-import { AuthUserGuard } from 'src/module/auth/guard/auth.user.guard';
-import { AuthType } from 'src/module/auth/type/auth.type';
+import {
+  GetMyUserProfileResponseDto,
+  UserHandleParamDto,
+} from '../dto/user.dto';
 
-@UseGuards(AuthUserGuard)
-@ApiSecurity(AuthType.USER)
 @Controller({ path: 'users', version: '1' })
 @ApiTags('User')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
+
+  @Get(':handle')
+  @ApiOperation({ summary: 'user 정보 확인' })
+  @ApiOkResponse({
+    type: GetMyUserProfileResponseDto,
+  })
+  async getUser(@Param() param: UserHandleParamDto) {
+    return new GetMyUserProfileResponseDto(
+      await this.userService.getUserWithProfileByHandle(param.handle),
+    );
+  }
 }

@@ -18,7 +18,16 @@ export class UserRepository extends CommonRepository<User> {
 
   async findOneWithProfileById(id: UUID) {
     return this.repository.findOne({
-      where: { id: id },
+      where: { id },
+      relations: {
+        profile: true,
+      },
+    });
+  }
+
+  async findOneWithProfileByHandle(handle: string) {
+    return this.repository.findOne({
+      where: { handle },
       relations: {
         profile: true,
       },

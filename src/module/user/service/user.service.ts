@@ -32,6 +32,10 @@ export class UserService {
     return this.userRepository.findOneWithProfileById(id);
   }
 
+  async getUserWithProfileByHandle(handle: string) {
+    return this.userRepository.findOneWithProfileByHandle(handle);
+  }
+
   async getUserByProviderAndProviderId(
     provider: SsoProvider,
     providerId: string,
