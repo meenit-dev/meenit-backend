@@ -46,12 +46,26 @@ export class GetMyUserResponseDto {
   })
   type: UserType;
 
+  @ApiProperty({
+    description: '생성 날짜',
+    example: '2024-01-01T00:00:00.000Z',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    description: '수정 날짜',
+    example: '2024-01-01T00:00:00.000Z',
+  })
+  updatedAt: Date;
+
   constructor(user: User) {
     this.id = user.id;
     this.name = user.name;
     this.handle = user.handle;
     this.avatar = user.avatar;
     this.type = user.type;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
   }
 }
 

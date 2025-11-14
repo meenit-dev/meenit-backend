@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Tag } from '../entity/tag.entity';
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class GetTagsQueryDto {
   @ApiProperty({
@@ -9,10 +9,11 @@ export class GetTagsQueryDto {
     required: false,
   })
   @IsOptional()
+  @IsString()
   name?: string;
 }
 
-export class TagsResponseDto {
+export class TagResponseDto {
   @ApiProperty({
     description: '태그 이름',
     example: '홍길동',
@@ -29,9 +30,9 @@ export class TagsResponseDto {
 export class GetTagsResponseDto {
   @ApiProperty({
     description: 'tag 정보 리스트',
-    type: [TagsResponseDto],
+    type: [TagResponseDto],
   })
-  list: TagsResponseDto[];
+  list: TagResponseDto[];
 
   constructor(tags: Tag[]) {
     this.list = tags.map(({ name, count }) => ({ name, count }));

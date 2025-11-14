@@ -38,6 +38,11 @@ import { NotFoundError } from '@common/error';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Get('test-token')
+  async testToken(@Query('handle') handle: string) {
+    return this.authService.testMakeToken(handle);
+  }
+
   @Get('google')
   @UseGuards(GoogleGuard)
   async googleAuth(@Query() _query: SsoSignUpQueryDto) {}

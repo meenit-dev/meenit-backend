@@ -29,11 +29,27 @@ export class UserService {
   }
 
   async getUserWithProfileById(id: string) {
-    return this.userRepository.findOneWithProfileById(id);
+    const user = await this.userRepository.findOneWithProfileById(id);
+    if (!user) {
+      throw new NotFoundError();
+    }
+    return user;
+  }
+
+  async getUserByHandle(handle: string) {
+    const user = await this.userRepository.findOneByHandle(handle);
+    if (!user) {
+      throw new NotFoundError();
+    }
+    return user;
   }
 
   async getUserWithProfileByHandle(handle: string) {
-    return this.userRepository.findOneWithProfileByHandle(handle);
+    const user = await this.userRepository.findOneWithProfileByHandle(handle);
+    if (!user) {
+      throw new NotFoundError();
+    }
+    return user;
   }
 
   async getUserByProviderAndProviderId(

@@ -30,6 +30,11 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
+  async testMakeToken(handle: string) {
+    const user = await this.userService.getUserByHandle(handle);
+    return this.makeBasicJWTResponse(user);
+  }
+
   @Transactional()
   async signIn(
     ssoUserPayload: SsoUserPayload,

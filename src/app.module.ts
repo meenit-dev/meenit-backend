@@ -13,6 +13,7 @@ import { setProcessErrorHandling } from '@common/filter/util';
 import { StorageModule } from './module/storage/storage.module';
 import { MailModule } from './module/mail/mail.module';
 import { TagModule } from './module/tag/tag.module';
+import { PortfolioModule } from './module/portfolio/portfolio.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { TagModule } from './module/tag/tag.module';
     StorageModule,
     MailModule,
     TagModule,
+    PortfolioModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_FILTER, useClass: CustomExceptionFilter }],

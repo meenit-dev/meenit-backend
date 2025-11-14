@@ -44,15 +44,6 @@ function initClientApiSwagger(app: INestApplication) {
     .setDescription('MeeNiT API description')
     .addBearerAuth({ type: 'http' }, AuthType.USER)
     .addBearerAuth({ type: 'http' }, AuthType.REFRESH)
-    .addApiKey(
-      {
-        type: 'apiKey',
-        name: 'Authorization',
-        in: 'header',
-        description: 'Use format: AEK {api-key}',
-      },
-      AuthType.API_KEY,
-    )
     .build();
   const doc = SwaggerModule.createDocument(app, config);
   filterDocsByTag(doc, SwaggerApiTag.BACK_OFFICE);
