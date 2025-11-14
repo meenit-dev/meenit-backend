@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Portfolio } from '../entity/portfolio.entity';
 import {
+  ArrayMaxSize,
   IsEnum,
   IsOptional,
   IsString,
@@ -164,6 +165,12 @@ export class GetPortfolioResponseDto {
   likeCount: number;
 
   @ApiProperty({
+    description: '좋아요 수',
+    example: ['tag1', 'tag2'],
+  })
+  tags: string[];
+
+  @ApiProperty({
     description: '생성 날짜',
     example: '2024-01-01T00:00:00.000Z',
   })
@@ -183,6 +190,7 @@ export class GetPortfolioResponseDto {
     this.thumbnailUrl = portfolio.thumbnailUrl;
     this.viewCount = portfolio.viewCount;
     this.likeCount = portfolio.likeCount;
+    this.tags = portfolio.tags.map((tag) => tag.tag.name);
     this.createdAt = portfolio.createdAt;
     this.updatedAt = portfolio.updatedAt;
   }
@@ -221,6 +229,15 @@ export class PostPortfoliosBodyDto {
   @IsString()
   @IsOptional()
   thumbnailUrl?: string;
+
+  @ApiProperty({
+    description: 'Tag 명',
+    example: ['Tag1', 'Tag2'],
+    type: [String],
+  })
+  @IsString({ each: true })
+  @ArrayMaxSize(5)
+  tags: string[];
 }
 
 export class PatchPortfoliosBodyDto {
@@ -243,4 +260,15 @@ export class PatchPortfoliosBodyDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @ApiProperty({
+    description: 'Tag 명',
+    example: ['Tag1', 'Tag2'],
+    type: [String],
+    required: false,
+  })
+  @IsString({ each: true })
+  @ArrayMaxSize(5)
+  @IsOptional()
+  tags?: string[];
 }

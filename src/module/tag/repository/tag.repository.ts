@@ -16,6 +16,10 @@ export class TagRepository extends CommonRepository<Tag> {
     super();
   }
 
+  async findManyByNames(names: string[]) {
+    return this.repository.find({ where: { name: In(names) } });
+  }
+
   async findUsedTop20ByName(name?: string) {
     return this.repository.find({
       where: { ...(name ? { name: Like(`%${name}%`) } : {}) },

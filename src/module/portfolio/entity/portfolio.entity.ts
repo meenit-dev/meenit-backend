@@ -1,8 +1,16 @@
 import { CommonBaseEntity } from 'src/common/entity/common-base.entity';
-import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { PortfolioCategory } from '../type/portfolio.type';
 import { UUID } from '@common/type';
 import { User } from 'src/module/user/entity/user.entity';
+import { PortfolioTag } from './portfolio.tag.entity';
 
 @Entity({ name: 'portfolio' })
 export class Portfolio extends CommonBaseEntity {
@@ -31,6 +39,10 @@ export class Portfolio extends CommonBaseEntity {
   @ManyToOne(() => User, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @OneToMany(() => PortfolioTag, (portfolioTag) => portfolioTag.portfolio)
+  @JoinColumn({ name: 'user_id' })
+  tags: PortfolioTag[];
 
   static of(createRequest: {
     userId: UUID;

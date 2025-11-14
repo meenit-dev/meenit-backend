@@ -17,18 +17,33 @@ import { Portfolio } from '../entity/portfolio.entity';
 import { Transactional } from 'typeorm-transactional';
 import { PortfolioLikeRepository } from '../repository/portfolio.like.repository';
 import { PortfolioLike } from '../entity/portfolio.like.entity';
+import { TagService } from 'src/module/tag/service/tag.service';
+import { PortfolioTag } from '../entity/portfolio.tag.entity';
+import { PortfolioTagRepository } from '../repository/portfolio.tag.repository';
 
 @Injectable()
 export class PortfolioService {
   constructor(
+    private readonly tagService: TagService,
     private readonly portfolioRepository: PortfolioRepository,
     private readonly portfolioLikeRepository: PortfolioLikeRepository,
+    private readonly portfolioTagRepository: PortfolioTagRepository,
     private readonly userService: UserService,
   ) {}
 
+  @Transactional()
   async createPortfolio(userId: UUID, body: PostPortfoliosBodyDto) {
+    const tags = await this.tagService.getTagsByNames(body.tags);
     await this.userService.getUserById(userId);
-    return this.portfolioRepository.save(Portfolio.of({ userId, ...body }));
+    const portfolio = await this.portfolioRepository.save(
+      Portfolio.of({ userId, ...body }),
+    );
+    await this.portfolioTagRepository.saveMany(
+      tags.map((tag) =>
+        PortfolioTag.of({ tagId: tag.id, portfolioId: portfolio.id }),
+      ),
+    );
+    return this.portfolioRepository.findOneWithTagById(portfolio.id);
   }
 
   async getPortfoliosPaginationByHandle(
@@ -52,12 +67,16 @@ export class PortfolioService {
   }
 
   async getPortfolioAndIncreseViewCountById(id: UUID) {
-    const portfolio = await this.getPortfolioById(id);
+    const portfolio = await this.portfolioRepository.findOneWithTagById(id);
+    if (!portfolio) {
+      throw new NotFoundError();
+    }
     await this.portfolioRepository.increseViewCountById(portfolio.id);
     portfolio.viewCount++;
     return portfolio;
   }
 
+  @Transactional()
   async updatePortfolioByIdAndUserId(
     id: UUID,
     userId: UUID,
@@ -67,7 +86,17 @@ export class PortfolioService {
     if (portfolio.userId !== userId) {
       throw new ForbiddenError();
     }
-    return this.portfolioRepository.save(portfolio.update(updateRequest));
+    await this.portfolioRepository.save(portfolio.update(updateRequest));
+    if (updateRequest.tags) {
+      const tags = await this.tagService.getTagsByNames(updateRequest.tags);
+      await this.portfolioTagRepository.deleteManyByPortfolioId(portfolio.id);
+      await this.portfolioTagRepository.saveMany(
+        tags.map((tag) =>
+          PortfolioTag.of({ tagId: tag.id, portfolioId: portfolio.id }),
+        ),
+      );
+    }
+    return this.portfolioRepository.findOneWithTagById(id);
   }
 
   async deletePortfolioByIdAndUserId(id: UUID, userId: UUID) {

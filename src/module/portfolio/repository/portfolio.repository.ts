@@ -18,6 +18,13 @@ export class PortfolioRepository extends CommonRepository<Portfolio> {
     super();
   }
 
+  async findOneWithTagById(id: UUID) {
+    return this.repository.findOne({
+      where: { id },
+      relations: { tags: { tag: true } },
+    });
+  }
+
   async findAllPaginationByUserIdAndCategory(
     userId: UUID,
     category: PortfolioCategory | null,

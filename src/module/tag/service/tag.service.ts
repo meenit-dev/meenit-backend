@@ -6,6 +6,10 @@ import { UUID } from '@common/type';
 export class TagService {
   constructor(private readonly tagRepository: TagRepository) {}
 
+  async getTagsByNames(names: string[]) {
+    return this.tagRepository.findManyByNames(names);
+  }
+
   async getUsedTop20TagsByName(name?: string) {
     return this.tagRepository.findUsedTop20ByName(name);
   }
