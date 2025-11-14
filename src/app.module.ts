@@ -12,6 +12,7 @@ import { CustomExceptionFilter } from '@common/filter/exception-filter';
 import { setProcessErrorHandling } from '@common/filter/util';
 import { StorageModule } from './module/storage/storage.module';
 import { MailModule } from './module/mail/mail.module';
+import { TagModule } from './module/tag/tag.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MailModule } from './module/mail/mail.module';
     UserModule,
     StorageModule,
     MailModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_FILTER, useClass: CustomExceptionFilter }],

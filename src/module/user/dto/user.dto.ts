@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { User } from '../entity/user.entity';
 import { UserType } from '../type/user.type';
 import { Account } from '../entity/account.entity';
@@ -9,6 +9,7 @@ export class UserHandleParamDto {
     description: 'user 고유 인식 값',
     example: 'Hong1',
   })
+  @IsString()
   handle: string;
 }
 
@@ -102,6 +103,8 @@ export class PatchUserInfoBodyDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(15)
+  @MinLength(1)
   name?: string;
 
   @ApiProperty({
@@ -111,6 +114,8 @@ export class PatchUserInfoBodyDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(15)
+  @MinLength(5)
   handle?: string;
 
   @ApiProperty({

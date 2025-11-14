@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 import { GetMyUserResponseDto } from 'src/module/user/dto/user.dto';
 
 export class SsoSignUpQueryDto {
@@ -18,7 +18,7 @@ export class SsoSignUpQueryDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
+  @IsEmail()
   email?: string;
 
   @ApiProperty({
@@ -78,7 +78,7 @@ export class PostEmailCodeBodyDto {
     description: '회원가입 시 유저 이메일',
     example: 'hong@email.com',
   })
-  @IsString()
+  @IsEmail()
   email: string;
 }
 
@@ -87,7 +87,7 @@ export class PostEmailCodeValidationBodyDto {
     description: '회원가입 시 유저 이메일',
     example: 'hong@email.com',
   })
-  @IsString()
+  @IsEmail()
   email: string;
 
   @ApiProperty({
