@@ -45,9 +45,10 @@ export class CustomExceptionFilter implements ExceptionFilter {
         query: request.query,
         statusCode: statusCode,
         error: message,
-        ...(statusCode >= HttpStatus.INTERNAL_SERVER_ERROR
-          ? { body: request.body }
-          : {}),
+        body: request.body,
+        // ...(statusCode >= HttpStatus.INTERNAL_SERVER_ERROR
+        //   ? { body: request.body }
+        //   : {}),
         headers: request.headers,
       }),
     );
