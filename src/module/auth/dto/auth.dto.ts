@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString } from 'class-validator';
-import { GetMyUserResponseDto } from 'src/module/user/dto/user.dto';
+import { UserResponseDto } from 'src/module/user/dto/user.dto';
 
 export class SsoSignUpQueryDto {
   @ApiProperty({
@@ -56,9 +56,9 @@ export interface SignUpRequestDto {
 export class BasicJWTResponseDto {
   @ApiProperty({
     description: '로그인한 유저 정보',
-    type: GetMyUserResponseDto,
+    type: UserResponseDto,
   })
-  user: GetMyUserResponseDto;
+  user: UserResponseDto;
 
   @ApiProperty({
     description: 'accessToken',

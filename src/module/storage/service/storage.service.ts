@@ -19,7 +19,7 @@ export class StorageService {
       case StorageType.AVATAR:
         return {
           acl: ObjectCannedACL.public_read,
-          path: `users/${user.id}/avatar.${extention}`,
+          path: `users/${user.id}/avatar/${v7()}.${extention}`,
           maxSizeBytes: 1048576, // 1MB
         };
       case StorageType.COMMISSION:
@@ -37,7 +37,7 @@ export class StorageService {
       case StorageType.PROFILE_BACKGROUPD:
         return {
           acl: ObjectCannedACL.public_read,
-          path: `users/${user.id}/profileBackground.${extention}`,
+          path: `users/${user.id}/profileBackground/${v7()}.${extention}`,
           maxSizeBytes: 5242880, // 5MB
         };
     }

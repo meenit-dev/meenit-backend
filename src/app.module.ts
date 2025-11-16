@@ -14,6 +14,7 @@ import { StorageModule } from './module/storage/storage.module';
 import { MailModule } from './module/mail/mail.module';
 import { TagModule } from './module/tag/tag.module';
 import { PortfolioModule } from './module/portfolio/portfolio.module';
+import { CommissionModule } from './module/commission/commission.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { PortfolioModule } from './module/portfolio/portfolio.module';
     MailModule,
     TagModule,
     PortfolioModule,
+    CommissionModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_FILTER, useClass: CustomExceptionFilter }],

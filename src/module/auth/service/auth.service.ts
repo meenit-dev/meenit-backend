@@ -15,7 +15,7 @@ import { User } from 'src/module/user/entity/user.entity';
 import { UserAuthTokenRepository } from '../repository/user.auth.token.repository';
 import { UserAuthToken } from '../entity/user.auth.token.entity';
 import { BadRequestError, NotFoundError } from '@common/error';
-import { GetMyUserResponseDto } from 'src/module/user/dto/user.dto';
+import { UserResponseDto } from 'src/module/user/dto/user.dto';
 import { MailService } from 'src/module/mail/service/mail.service';
 import { EmailVerificationRepository } from '../repository/email.verification.verification.repository';
 import { EmailVerification } from '../entity/email.verification.entity';
@@ -152,7 +152,7 @@ export class AuthService {
     });
 
     return {
-      user: new GetMyUserResponseDto(user),
+      user: new UserResponseDto(user),
       accessToken,
       refreshToken,
     };

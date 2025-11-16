@@ -165,7 +165,7 @@ export class GetPortfolioResponseDto {
   likeCount: number;
 
   @ApiProperty({
-    description: '좋아요 수',
+    description: '태그 명',
     example: ['tag1', 'tag2'],
   })
   tags: string[];

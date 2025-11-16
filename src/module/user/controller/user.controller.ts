@@ -10,7 +10,7 @@ import { AuthUserGuard } from 'src/module/auth/guard/auth.user.guard';
 import { AuthType, UserPayload } from 'src/module/auth/type/auth.type';
 import {
   GetMyUserProfileResponseDto,
-  GetMyUserResponseDto,
+  UserResponseDto,
   GetUserAccountResponseDto,
   PatchUserInfoBodyDto,
   PutUserAccountBodyDto,
@@ -28,12 +28,10 @@ export class UserController {
   @Get('me')
   @ApiOperation({ summary: 'user 정보 확인' })
   @ApiOkResponse({
-    type: GetMyUserResponseDto,
+    type: UserResponseDto,
   })
   async me(@ReqUser() user: UserPayload) {
-    return new GetMyUserResponseDto(
-      await this.userService.getUserById(user.id),
-    );
+    return new UserResponseDto(await this.userService.getUserById(user.id));
   }
 
   @Get('me/profile')

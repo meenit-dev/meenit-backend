@@ -120,10 +120,7 @@ export class PortfolioController {
     @ReqUser() user: UserPayload,
     @Param() param: PortfolioParamDto,
   ) {
-    await this.portfolioService.createPortfoliolLike(
-      param.portfolioId,
-      user.id,
-    );
+    await this.portfolioService.createPortfolioLike(param.portfolioId, user.id);
   }
 
   @UseGuards(AuthUserGuard)
@@ -134,9 +131,6 @@ export class PortfolioController {
     @ReqUser() user: UserPayload,
     @Param() param: PortfolioParamDto,
   ) {
-    await this.portfolioService.deletePortfoliolLike(
-      param.portfolioId,
-      user.id,
-    );
+    await this.portfolioService.deletePortfolioLike(param.portfolioId, user.id);
   }
 }

@@ -14,7 +14,7 @@ export class UserHandleParamDto {
   handle: string;
 }
 
-export class GetMyUserResponseDto {
+export class UserResponseDto {
   @ApiProperty({
     description: '유저 고유 아이디',
     example: 'userId',
@@ -70,7 +70,7 @@ export class GetMyUserResponseDto {
   }
 }
 
-export class GetMyUserProfileResponseDto extends GetMyUserResponseDto {
+export class GetMyUserProfileResponseDto extends UserResponseDto {
   @ApiProperty({
     description: '자기 소개',
     example: '자기 소개',

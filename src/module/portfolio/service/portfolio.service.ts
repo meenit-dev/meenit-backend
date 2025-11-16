@@ -111,7 +111,7 @@ export class PortfolioService {
   }
 
   @Transactional()
-  async createPortfoliolLike(portfolioId: UUID, userId: UUID) {
+  async createPortfolioLike(portfolioId: UUID, userId: UUID) {
     const portfolio = await this.getPortfolioById(portfolioId);
     if (portfolio.userId === userId) {
       throw new BadRequestError();
@@ -134,7 +134,7 @@ export class PortfolioService {
   }
 
   @Transactional()
-  async deletePortfoliolLike(portfolioId: UUID, userId: UUID) {
+  async deletePortfolioLike(portfolioId: UUID, userId: UUID) {
     if (
       await this.portfolioLikeRepository.findOneByUserIdAndPortfolioId(
         userId,
