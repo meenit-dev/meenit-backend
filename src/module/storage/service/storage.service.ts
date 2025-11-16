@@ -65,7 +65,7 @@ export class StorageService {
       Key: path,
       ContentType: mimeType,
       ACL: acl,
-      ContentLength: 82903,
+      ContentLength: contentLength,
     });
 
     return {
