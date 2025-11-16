@@ -3,13 +3,14 @@ import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { User } from '../entity/user.entity';
 import { UserType } from '../type/user.type';
 import { Account } from '../entity/account.entity';
+import { IsHandle } from '@common/decorator';
 
 export class UserHandleParamDto {
   @ApiProperty({
     description: 'user 고유 인식 값',
     example: 'Hong1',
   })
-  @IsString()
+  @IsHandle()
   handle: string;
 }
 
@@ -126,10 +127,8 @@ export class PatchUserInfoBodyDto {
     example: 'Hong1',
     required: false,
   })
-  @IsString()
   @IsOptional()
-  @MaxLength(15)
-  @MinLength(5)
+  @IsHandle()
   handle?: string;
 
   @ApiProperty({
