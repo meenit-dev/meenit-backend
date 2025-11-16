@@ -74,7 +74,7 @@ export class UserService {
     updateRequest: PatchUserInfoBodyDto,
   ) {
     const user = await this.getUserById(id);
-    if (updateRequest.handle) {
+    if (updateRequest.handle && user.handle !== updateRequest.handle) {
       if (await this.userRepository.findOneByHandle(updateRequest.handle)) {
         throw new DuplicatedError();
       }
