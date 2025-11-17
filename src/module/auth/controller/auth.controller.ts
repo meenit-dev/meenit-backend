@@ -60,7 +60,7 @@ export class AuthController {
     ) as SsoSignUpQueryDto;
     try {
       const { origin } = new URL(redirect);
-      const { refreshToken } = await this.authService.signIn(user, {
+      const { refreshToken } = await this.authService.signIn(user, name && email && {
         name,
         email,
         code: emailCode,
@@ -102,7 +102,7 @@ export class AuthController {
     ) as SsoSignUpQueryDto;
     try {
       const { origin } = new URL(redirect);
-      const { refreshToken } = await this.authService.signIn(user, {
+      const { refreshToken } = await this.authService.signIn(user, name && email && {
         name,
         email,
         code: emailCode,
