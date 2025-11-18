@@ -14,11 +14,13 @@ import { XStrategy } from './strategy/x.strategy';
 import { MailModule } from '../mail/mail.module';
 import { EmailVerificationRepository } from './repository/email.verification.verification.repository';
 import { EmailVerification } from './entity/email.verification.entity';
+import { SsoAccountRepository } from './repository/sso.account.repository';
+import { SsoAccount } from './entity/sso.account.entity';
 
 @Module({
   imports: [
     JwtModule.register({}),
-    TypeOrmModule.forFeature([UserAuthToken, EmailVerification]),
+    TypeOrmModule.forFeature([UserAuthToken, EmailVerification, SsoAccount]),
     UserModule,
     MailModule,
   ],
@@ -31,6 +33,7 @@ import { EmailVerification } from './entity/email.verification.entity';
     UserAuthTokenRepository,
     CommonHttpRepository,
     EmailVerificationRepository,
+    SsoAccountRepository,
   ],
   exports: [AuthService],
   controllers: [AuthController],

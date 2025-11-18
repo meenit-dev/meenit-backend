@@ -13,8 +13,7 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
   }
 
   async validate(req: Request): Promise<any> {
-    const { code, state, name, email, emailCode, redirect, failedRedirect } =
-      req.query;
+    const { code, state, redirect, failedRedirect } = req.query;
 
     // 1) 로그인 초기 요청
     if (!code) {
@@ -22,9 +21,6 @@ export class XStrategy extends PassportStrategy(Strategy, 'x') {
 
       const state = {
         codeVerifier,
-        name,
-        email,
-        emailCode,
         redirect,
         failedRedirect,
       };

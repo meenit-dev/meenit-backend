@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/service/user.service';
-import { BasicJWTResponseDto } from '../dto/auth.dto';
+import { BasicJWTResponseDto, SsoSignUpBodyDto } from '../dto/auth.dto';
 import {
   getJwtAccessExpiration,
   getJwtAccessSecret,
@@ -19,15 +19,18 @@ import { UserResponseDto } from 'src/module/user/dto/user.dto';
 import { MailService } from 'src/module/mail/service/mail.service';
 import { EmailVerificationRepository } from '../repository/email.verification.verification.repository';
 import { EmailVerification } from '../entity/email.verification.entity';
+import { SsoAccountRepository } from '../repository/sso.account.repository';
+import { SsoAccount } from '../entity/sso.account.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
     private readonly userAuthTokenRepository: UserAuthTokenRepository,
     private readonly emailVerificationRepository: EmailVerificationRepository,
-    private readonly mailService: MailService,
+    private readonly ssoAccountRepository: SsoAccountRepository,
   ) {}
 
   async testMakeToken(handle: string) {
@@ -35,15 +38,7 @@ export class AuthService {
     return this.makeBasicJWTResponse(user);
   }
 
-  @Transactional()
-  async signIn(
-    ssoUserPayload: SsoUserPayload,
-    singUpRequest?: {
-      name: string;
-      email: string;
-      code: string;
-    },
-  ): Promise<BasicJWTResponseDto> {
+  async signIn(ssoUserPayload: SsoUserPayload): Promise<BasicJWTResponseDto> {
     const user = await (async () => {
       const user = await this.userService.getUserByProviderAndProviderId(
         ssoUserPayload.provider,
@@ -52,21 +47,14 @@ export class AuthService {
       if (user) {
         return user;
       }
-      if (singUpRequest) {
-        const emailVerification = await this.validationEmailVerificationCode(
-          singUpRequest.email,
-          singUpRequest.code,
-        );
-        await this.emailVerificationRepository.save(emailVerification.use());
-        return this.userService.createUser({
-          email: singUpRequest.email,
-          name: singUpRequest.name,
+      await this.ssoAccountRepository.save(
+        SsoAccount.of({
+          ssoId: ssoUserPayload.id,
           avatar: ssoUserPayload.avatar,
-          [`${ssoUserPayload.provider}Id`]: ssoUserPayload.id,
-        });
-      } else {
-        throw new NotFoundError();
-      }
+          provider: ssoUserPayload.provider,
+        }),
+      );
+      throw new NotFoundError();
     })();
     const userJwt = this.makeBasicJWTResponse(user, 30);
     await this.userAuthTokenRepository.save(
@@ -94,6 +82,36 @@ export class AuthService {
     await this.userAuthTokenRepository.save(userAuthToken.use());
     const userJwt = this.makeBasicJWTResponse(user);
 
+    await this.userAuthTokenRepository.save(
+      UserAuthToken.of({ userId: user.id, ...userJwt }),
+    );
+    return userJwt;
+  }
+
+  @Transactional()
+  async signUp(signUpRequest: SsoSignUpBodyDto) {
+    const emailVerification = await this.validationEmailVerificationCode(
+      signUpRequest.email,
+      signUpRequest.code,
+    );
+    const ssoAccount =
+      await this.ssoAccountRepository.findOneByProviderAndSsoId(
+        signUpRequest.provider,
+        signUpRequest.id,
+      );
+    if (!ssoAccount) {
+      throw new BadRequestError();
+    }
+
+    await this.emailVerificationRepository.save(emailVerification.use());
+    const user = await this.userService.createUser({
+      email: signUpRequest.email,
+      name: signUpRequest.name,
+      avatar: ssoAccount.avatar,
+      [`${signUpRequest.provider}Id`]: signUpRequest.id,
+    });
+
+    const userJwt = this.makeBasicJWTResponse(user, 30);
     await this.userAuthTokenRepository.save(
       UserAuthToken.of({ userId: user.id, ...userJwt }),
     );

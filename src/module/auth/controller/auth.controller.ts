@@ -3,7 +3,8 @@ import {
   BasicJWTResponseDto,
   PostEmailCodeBodyDto,
   PostEmailCodeValidationBodyDto,
-  SsoSignUpQueryDto,
+  SsoSignUpBodyDto,
+  SsoSignInQueryDto,
 } from '../dto/auth.dto';
 import { AuthService } from '../service/auth.service';
 import {
@@ -45,7 +46,7 @@ export class AuthController {
 
   @Get('google')
   @UseGuards(GoogleGuard)
-  async googleAuth(@Query() _query: SsoSignUpQueryDto) {}
+  async googleAuth(@Query() _query: SsoSignInQueryDto) {}
 
   @Get('google/callback')
   @UseGuards(GoogleGuard)
@@ -55,16 +56,12 @@ export class AuthController {
     @Req() req,
     @ReqUser() user: SsoUserPayload,
   ) {
-    const { name, email, emailCode, redirect, failedRedirect } = JSON.parse(
+    const { redirect, failedRedirect } = JSON.parse(
       decodeURIComponent(req.query.state),
-    ) as SsoSignUpQueryDto;
+    ) as SsoSignInQueryDto;
     try {
       const { origin } = new URL(redirect);
-      const { refreshToken } = await this.authService.signIn(user, name && email && {
-        name,
-        email,
-        code: emailCode,
-      });
+      const { refreshToken } = await this.authService.signIn(user);
       return res.redirect(
         `${origin}/login/success?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
       );
@@ -72,7 +69,7 @@ export class AuthController {
       const { origin } = new URL(failedRedirect);
       const requiredSignUp = error instanceof NotFoundError;
       return res.redirect(
-        `${origin}/login/fail?requiredSignUp=${requiredSignUp}&redirect=${encodeURIComponent(failedRedirect)}`,
+        `${origin}/login/fail?requiredSignUp=${requiredSignUp}&redirect=${encodeURIComponent(failedRedirect)}&provider=${user.provider}&id=${user.id}`,
       );
     }
   }
@@ -82,7 +79,7 @@ export class AuthController {
   async xAuth(
     @ReqUser() result: any,
     @Res() res: Response,
-    @Query() _query: SsoSignUpQueryDto,
+    @Query() _query: SsoSignInQueryDto,
   ) {
     if (result?.redirect) {
       return res.redirect(result.redirect);
@@ -97,16 +94,12 @@ export class AuthController {
     @Req() req,
     @ReqUser() user: SsoUserPayload,
   ) {
-    const { name, email, emailCode, redirect, failedRedirect } = JSON.parse(
+    const { redirect, failedRedirect } = JSON.parse(
       decodeURIComponent(req.query.state),
-    ) as SsoSignUpQueryDto;
+    ) as SsoSignInQueryDto;
     try {
       const { origin } = new URL(redirect);
-      const { refreshToken } = await this.authService.signIn(user, name && email && {
-        name,
-        email,
-        code: emailCode,
-      });
+      const { refreshToken } = await this.authService.signIn(user);
       return res.redirect(
         `${origin}/login/success?refresh=${refreshToken}&redirect=${encodeURIComponent(redirect)}`,
       );
@@ -114,17 +107,22 @@ export class AuthController {
       const { origin } = new URL(failedRedirect);
       const requiredSignUp = error instanceof NotFoundError;
       return res.redirect(
-        `${origin}/login/fail?requiredSignUp=${requiredSignUp}&redirect=${encodeURIComponent(failedRedirect)}`,
+        `${origin}/login/fail?requiredSignUp=${requiredSignUp}&redirect=${encodeURIComponent(failedRedirect)}&provider=${user.provider}&id=${user.id}`,
       );
     }
+  }
+
+  @Post('sign-up')
+  @ApiOperation({ summary: '회원가입' })
+  @ApiCreatedResponse({ type: BasicJWTResponseDto })
+  async signUp(@Body() body: SsoSignUpBodyDto) {
+    return this.authService.signUp(body);
   }
 
   @UseGuards(AuthRefreshGuard)
   @ApiSecurity(AuthType.REFRESH)
   @Post('refresh')
-  @ApiOperation({
-    summary: 'JWT 토큰 재발급',
-  })
+  @ApiOperation({ summary: 'JWT 토큰 재발급' })
   @ApiCreatedResponse({
     type: BasicJWTResponseDto,
   })
@@ -138,9 +136,7 @@ export class AuthController {
   @UseGuards(AuthUserGuard)
   @ApiSecurity(AuthType.USER)
   @Post('sign-out')
-  @ApiOperation({
-    summary: '로그아웃',
-  })
+  @ApiOperation({ summary: '로그아웃' })
   async signOut(@Headers() headers: IncomingHttpHeaders) {
     await this.authService.signOut(headers.authorization.split(' ')[1]);
     return;
