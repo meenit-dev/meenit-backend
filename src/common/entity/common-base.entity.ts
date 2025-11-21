@@ -3,10 +3,10 @@ import { UUIDEntity } from './uuid.entity';
 
 export class CommonBaseEntity extends UUIDEntity {
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt: Date = new Date();
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date | null;
+  updatedAt: Date | null = new Date();
 
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt: Date | null;

@@ -1,5 +1,4 @@
 import { Body, Controller, Put, UseGuards } from '@nestjs/common';
-import { StorageService } from '../service/storage.service';
 import { AuthUserGuard } from 'src/module/auth/guard/auth.user.guard';
 import { AuthType, UserPayload } from 'src/module/auth/type/auth.type';
 import {
@@ -13,13 +12,14 @@ import {
   PutPreSignedUrlBodyDto,
   PutPreSignedUrlResponseDto,
 } from '../dto/storage.dto';
+import { ResourceService } from '../service/resource.service';
 
 @UseGuards(AuthUserGuard)
 @ApiSecurity(AuthType.USER)
 @ApiTags('Stroage')
 @Controller({ path: 'storage', version: '1' })
 export class StorageController {
-  constructor(private readonly storageService: StorageService) {}
+  constructor(private readonly resourceService: ResourceService) {}
 
   @Put('pre-signed')
   @ApiOperation({
@@ -30,12 +30,6 @@ export class StorageController {
     @ReqUser() user: UserPayload,
     @Body() body: PutPreSignedUrlBodyDto,
   ) {
-    return this.storageService.getUploadPostUrl(
-      user,
-      body.type,
-      body.mimeType,
-      body.extention,
-      body.contentLength,
-    );
+    return this.resourceService.getResourceTicket(user, body);
   }
 }

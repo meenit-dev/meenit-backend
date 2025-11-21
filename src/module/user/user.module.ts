@@ -9,9 +9,13 @@ import { Account } from './entity/account.entity';
 import { UserProfileRepository } from './repository/user.profile.repository';
 import { UserProfile } from './entity/user.profile.entity';
 import { AccountRepository } from './repository/account.repository';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Account, UserProfile])],
+  imports: [
+    TypeOrmModule.forFeature([User, Account, UserProfile]),
+    StorageModule,
+  ],
   providers: [
     UserService,
     UserRepository,

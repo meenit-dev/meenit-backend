@@ -11,6 +11,7 @@ import { Transactional } from 'typeorm-transactional';
 import { UUID } from '@common/type';
 import { AccountRepository } from '../repository/account.repository';
 import { Account } from '../entity/account.entity';
+import { ResourceService } from 'src/module/storage/service/resource.service';
 
 @Injectable()
 export class UserService {
@@ -18,6 +19,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly userProfileRepository: UserProfileRepository,
     private readonly accountRepository: AccountRepository,
+    private readonly resourceService: ResourceService,
   ) {}
 
   async getUserById(id: string) {
@@ -84,6 +86,24 @@ export class UserService {
       user.id,
     );
     await this.userProfileRepository.save(userProfile.update(updateRequest));
+    await this.updateUserProfileResource(user, userProfile, updateRequest);
+  }
+
+  async updateUserProfileResource(
+    user: User,
+    userProfile: UserProfile,
+    updateRequest: PatchUserInfoBodyDto,
+  ) {
+    if (updateRequest.avatar) {
+      await this.resourceService.deleteResourceByUrl(user.avatar);
+    } else if (updateRequest.avatar === null) {
+      await this.resourceService.deleteResourceByUrl(user.avatar);
+    }
+    if (updateRequest.background) {
+      await this.resourceService.deleteResourceByUrl(userProfile.background);
+    } else if (updateRequest.background === null) {
+      await this.resourceService.deleteResourceByUrl(userProfile.background);
+    }
   }
 
   async updateUserPhone(userId: UUID, phone: string) {

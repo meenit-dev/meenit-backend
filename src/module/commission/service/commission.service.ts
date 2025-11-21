@@ -103,6 +103,6 @@ export class CommissionService {
     if (commission.userId !== userId) {
       throw new ForbiddenError();
     }
-    await this.commissionRepository.deleteById(commission.id);
+    await this.commissionRepository.softDeleteById(commission.id);
   }
 }

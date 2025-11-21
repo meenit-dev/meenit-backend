@@ -18,10 +18,10 @@ export class PortfolioRepository extends CommonRepository<Portfolio> {
     super();
   }
 
-  async findOneWithTagById(id: UUID) {
+  async findOneWithTagAndResourceById(id: UUID) {
     return this.repository.findOne({
       where: { id },
-      relations: { tags: { tag: true } },
+      relations: { tags: { tag: true }, resource: true },
     });
   }
 

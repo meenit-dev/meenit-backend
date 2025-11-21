@@ -1,8 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   GetObjectCommand,
+  HeadObjectCommand,
   ObjectCannedACL,
   PutObjectCommand,
+  S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { STORAGE_PROVIDER, StorageType } from '../type/storage.type';
@@ -13,9 +15,9 @@ import { BadRequestError } from '@common/error';
 @Injectable()
 export class StorageService {
   private readonly BUCKET = process.env.NCP_BUCKET;
-  private readonly PUBLIC_BASE_URL = `https://${this.BUCKET}.kr.object.ncloudstorage.com`;
+  private readonly MEENIT_RESOURCE_BASE_URL = `https://${this.BUCKET}.kr.object.ncloudstorage.com`;
 
-  constructor(@Inject(STORAGE_PROVIDER) private readonly s3Client) {}
+  constructor(@Inject(STORAGE_PROVIDER) private readonly s3Client: S3Client) {}
 
   getStorageFileMeta(user: UserPayload, type: StorageType, extention: string) {
     switch (type) {
@@ -52,7 +54,7 @@ export class StorageService {
     }
   }
 
-  async getUploadPostUrl(
+  async getPutPreSignedUrl(
     user: UserPayload,
     type: StorageType,
     mimeType: string,
@@ -80,7 +82,7 @@ export class StorageService {
       presignedUrl: await getSignedUrl(this.s3Client, command, {
         expiresIn: 300,
       }),
-      publicUrl: `${this.PUBLIC_BASE_URL}/${path}`,
+      publicUrl: `${this.MEENIT_RESOURCE_BASE_URL}/${path}`,
     };
   }
 
@@ -93,5 +95,19 @@ export class StorageService {
     return getSignedUrl(this.s3Client, command, {
       expiresIn: 60 * 10,
     });
+  }
+
+  async getHeadObject(key: string) {
+    const command = new HeadObjectCommand({
+      Bucket: this.BUCKET,
+      Key: key,
+    });
+
+    try {
+      const result = await this.s3Client.send(command);
+      return result;
+    } catch (error) {
+      return null;
+    }
   }
 }

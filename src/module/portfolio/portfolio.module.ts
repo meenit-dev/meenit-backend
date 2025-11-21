@@ -10,12 +10,15 @@ import { PortfolioLike } from './entity/portfolio.like.entity';
 import { PortfolioTag } from './entity/portfolio.tag.entity';
 import { PortfolioTagRepository } from './repository/portfolio.tag.repository';
 import { TagModule } from '../tag/tag.module';
+import { StorageModule } from '../storage/storage.module';
+import { PortfolioUesrController } from './controller/portfolio.user.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Portfolio, PortfolioLike, PortfolioTag]),
     UserModule,
     TagModule,
+    StorageModule,
   ],
   providers: [
     PortfolioService,
@@ -23,7 +26,7 @@ import { TagModule } from '../tag/tag.module';
     PortfolioLikeRepository,
     PortfolioTagRepository,
   ],
-  controllers: [PortfolioController],
+  controllers: [PortfolioController, PortfolioUesrController],
   exports: [PortfolioService],
 })
 export class PortfolioModule {}

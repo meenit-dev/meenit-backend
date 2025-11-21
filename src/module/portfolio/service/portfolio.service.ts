@@ -20,6 +20,8 @@ import { PortfolioLike } from '../entity/portfolio.like.entity';
 import { TagService } from 'src/module/tag/service/tag.service';
 import { PortfolioTag } from '../entity/portfolio.tag.entity';
 import { PortfolioTagRepository } from '../repository/portfolio.tag.repository';
+import { ResourceService } from 'src/module/storage/service/resource.service';
+import { StorageType } from 'src/module/storage/type/storage.type';
 
 @Injectable()
 export class PortfolioService {
@@ -29,21 +31,27 @@ export class PortfolioService {
     private readonly portfolioLikeRepository: PortfolioLikeRepository,
     private readonly portfolioTagRepository: PortfolioTagRepository,
     private readonly userService: UserService,
+    private readonly resourceService: ResourceService,
   ) {}
 
   @Transactional()
   async createPortfolio(userId: UUID, body: PostPortfoliosBodyDto) {
     const tags = await this.tagService.getTagsByNames(body.tags);
     await this.userService.getUserById(userId);
+    const resource = await this.resourceService.upsertResource(
+      userId,
+      StorageType.PORTFOLIO,
+      body.url,
+    );
     const portfolio = await this.portfolioRepository.save(
-      Portfolio.of({ userId, ...body }),
+      Portfolio.of({ ...body, userId, resourceId: resource.id }),
     );
     await this.portfolioTagRepository.saveMany(
       tags.map((tag) =>
         PortfolioTag.of({ tagId: tag.id, portfolioId: portfolio.id }),
       ),
     );
-    return this.portfolioRepository.findOneWithTagById(portfolio.id);
+    return this.portfolioRepository.findOneWithTagAndResourceById(portfolio.id);
   }
 
   async getPortfoliosPaginationByHandle(
@@ -67,7 +75,8 @@ export class PortfolioService {
   }
 
   async getPortfolioAndIncreseViewCountById(id: UUID) {
-    const portfolio = await this.portfolioRepository.findOneWithTagById(id);
+    const portfolio =
+      await this.portfolioRepository.findOneWithTagAndResourceById(id);
     if (!portfolio) {
       throw new NotFoundError();
     }
@@ -96,18 +105,27 @@ export class PortfolioService {
         ),
       );
     }
-    return this.portfolioRepository.findOneWithTagById(id);
+    return this.portfolioRepository.findOneWithTagAndResourceById(id);
   }
 
+  @Transactional()
   async deletePortfolioByIdAndUserId(id: UUID, userId: UUID) {
-    const portfolio = await this.portfolioRepository.findOneById(id);
+    const portfolio =
+      await this.portfolioRepository.findOneWithTagAndResourceById(id);
     if (!portfolio) {
       return;
     }
     if (portfolio.userId !== userId) {
       throw new ForbiddenError();
     }
-    await this.portfolioRepository.deleteById(portfolio.id);
+    await this.portfolioTagRepository.softDeleteByIds(
+      portfolio.tags.map((tag) => tag.id),
+    );
+    await this.resourceService.deleteResourceById(portfolio.resource.id);
+    if (portfolio.thumbnailUrl) {
+      await this.resourceService.deleteResourceByUrl(portfolio.thumbnailUrl);
+    }
+    await this.portfolioRepository.softDeleteById(portfolio.id);
   }
 
   @Transactional()

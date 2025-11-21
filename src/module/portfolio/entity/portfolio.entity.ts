@@ -6,11 +6,13 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import { PortfolioCategory } from '../type/portfolio.type';
 import { UUID } from '@common/type';
 import { User } from 'src/module/user/entity/user.entity';
 import { PortfolioTag } from './portfolio.tag.entity';
+import { Resource } from 'src/module/storage/entity/resource.entity';
 
 @Entity({ name: 'portfolio' })
 export class Portfolio extends CommonBaseEntity {
@@ -24,8 +26,8 @@ export class Portfolio extends CommonBaseEntity {
   @Column({ nullable: true, type: String })
   description?: string;
 
-  @Column({ nullable: false, type: String })
-  url: string;
+  @Column({ name: 'resource_id', nullable: false, type: 'uuid' })
+  resourceId: UUID;
 
   @Column({ name: 'thumbnail_url', nullable: true, type: String })
   thumbnailUrl?: string;
@@ -41,22 +43,25 @@ export class Portfolio extends CommonBaseEntity {
   user: User;
 
   @OneToMany(() => PortfolioTag, (portfolioTag) => portfolioTag.portfolio)
-  @JoinColumn({ name: 'user_id' })
   tags: PortfolioTag[];
+
+  @OneToOne(() => Resource, { createForeignKeyConstraints: false })
+  @JoinColumn({ name: 'resource_id' })
+  resource: Resource;
 
   static of(createRequest: {
     userId: UUID;
     category: PortfolioCategory;
     description?: string;
     thumbnailUrl?: string;
-    url: string;
+    resourceId: UUID;
   }): Portfolio {
     const portfolio = new Portfolio();
     portfolio.userId = createRequest.userId;
     portfolio.category = createRequest.category;
     portfolio.description = createRequest.description;
     portfolio.thumbnailUrl = createRequest.thumbnailUrl;
-    portfolio.url = createRequest.url;
+    portfolio.resourceId = createRequest.resourceId;
     return portfolio;
   }
 

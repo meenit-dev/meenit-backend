@@ -13,6 +13,7 @@ import { UUID } from '@common/type';
 import { PortfolioCategory } from '../type/portfolio.type';
 import { PaginationDto } from '@common/dto';
 import { PaginationResponseDto } from '@common/repository/repository.dto';
+import { ResourceDto } from '@common/dto/resource.dto';
 
 export class PortfolioParamDto extends UserHandleParamDto {
   @ApiProperty({
@@ -140,10 +141,10 @@ export class GetPortfolioResponseDto {
   description?: string;
 
   @ApiProperty({
-    description: 'portfolio 원본 파일 경로',
-    example: 'https://meenit.com/image.jpg',
+    description: 'portfolio 원본 파일 정보',
+    type: ResourceDto,
   })
-  url: string;
+  resource: ResourceDto;
 
   @ApiProperty({
     description: 'portfolio 썸네일 이미지 경로',
@@ -186,7 +187,7 @@ export class GetPortfolioResponseDto {
     this.id = portfolio.id;
     this.category = portfolio.category;
     this.description = portfolio.description;
-    this.url = portfolio.url;
+    this.resource = new ResourceDto(portfolio.resource);
     this.thumbnailUrl = portfolio.thumbnailUrl;
     this.viewCount = portfolio.viewCount;
     this.likeCount = portfolio.likeCount;
