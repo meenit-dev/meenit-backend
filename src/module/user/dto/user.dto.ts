@@ -85,10 +85,18 @@ export class GetMyUserProfileResponseDto extends UserResponseDto {
   })
   background: string | null;
 
+  @ApiProperty({
+    description: '프로필에 등록한 소개 link',
+    example: ['https://youtube.com'],
+    nullable: true,
+  })
+  links: string[] | null;
+
   constructor(user: User) {
     super(user);
     this.introduction = user.profile.introduction;
     this.background = user.profile.background;
+    this.links = user.profile.links;
   }
 }
 
@@ -157,6 +165,15 @@ export class PatchUserInfoBodyDto {
   @IsString()
   @IsOptional()
   avatar?: string;
+
+  @ApiProperty({
+    description: '프로필에 등록할 소개 link',
+    example: ['https://youtube.com'],
+    required: false,
+  })
+  @IsString({ each: true })
+  @IsOptional()
+  links?: string[];
 }
 
 export class PutUserPhoneBodyDto {

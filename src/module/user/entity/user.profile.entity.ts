@@ -15,6 +15,13 @@ export class UserProfile extends CommonBaseEntity {
   @Column({ nullable: true, type: String })
   background?: string;
 
+  @Column({
+    type: 'text',
+    array: true,
+    nullable: true,
+  })
+  links?: string[];
+
   @OneToOne(() => User, (user) => user.profile)
   @JoinColumn({ name: 'user_id' })
   user: User;
@@ -25,9 +32,14 @@ export class UserProfile extends CommonBaseEntity {
     return profile;
   }
 
-  update(update: { introduction?: string; background?: string }): UserProfile {
+  update(update: {
+    introduction?: string;
+    background?: string;
+    links?: string[];
+  }): UserProfile {
     this.introduction = update.introduction || this.introduction;
     this.background = update.background || this.background;
+    this.links = update.links || this.links;
     return this;
   }
 }

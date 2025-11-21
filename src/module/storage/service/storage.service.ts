@@ -12,10 +12,19 @@ import { BadRequestError } from '@common/error';
 
 @Injectable()
 export class StorageService {
+  private readonly BUCKET = process.env.NCP_BUCKET;
+  private readonly PUBLIC_BASE_URL = `https://${this.BUCKET}.kr.object.ncloudstorage.com`;
+
   constructor(@Inject(STORAGE_PROVIDER) private readonly s3Client) {}
 
   getStorageFileMeta(user: UserPayload, type: StorageType, extention: string) {
     switch (type) {
+      case StorageType.THUMBNAIL:
+        return {
+          acl: ObjectCannedACL.public_read,
+          path: `users/${user.id}/thumbnail/${v7()}.${extention}`,
+          maxSizeBytes: 1048576, // 1MB
+        };
       case StorageType.AVATAR:
         return {
           acl: ObjectCannedACL.public_read,
@@ -32,7 +41,7 @@ export class StorageService {
         return {
           acl: ObjectCannedACL.public_read,
           path: `users/${user.id}/portfolio/${v7()}.${extention}`,
-          maxSizeBytes: 5242880, // 5MB
+          maxSizeBytes: 31457280, // 30MB
         };
       case StorageType.PROFILE_BACKGROUPD:
         return {
@@ -50,7 +59,6 @@ export class StorageService {
     extention: string,
     contentLength: number,
   ) {
-    const bucket = process.env.NCP_BUCKET;
     const { acl, path, maxSizeBytes } = this.getStorageFileMeta(
       user,
       type,
@@ -61,7 +69,7 @@ export class StorageService {
       throw new BadRequestError();
     }
     const command = new PutObjectCommand({
-      Bucket: bucket,
+      Bucket: this.BUCKET,
       Key: path,
       ContentType: mimeType,
       ACL: acl,
@@ -72,7 +80,7 @@ export class StorageService {
       presignedUrl: await getSignedUrl(this.s3Client, command, {
         expiresIn: 300,
       }),
-      publicUrl: `https://${bucket}.kr.object.ncloudstorage.com/${path}`,
+      publicUrl: `${this.PUBLIC_BASE_URL}/${path}`,
     };
   }
 
