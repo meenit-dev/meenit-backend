@@ -11,7 +11,7 @@ import { PortfolioTag } from './entity/portfolio.tag.entity';
 import { PortfolioTagRepository } from './repository/portfolio.tag.repository';
 import { TagModule } from '../tag/tag.module';
 import { StorageModule } from '../storage/storage.module';
-import { PortfolioUesrController } from './controller/portfolio.user.controller';
+import { UesrPortfolioController } from './controller/user.portfolio.controller';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { PortfolioUesrController } from './controller/portfolio.user.controller'
     PortfolioLikeRepository,
     PortfolioTagRepository,
   ],
-  controllers: [PortfolioController, PortfolioUesrController],
+  controllers: [PortfolioController, UesrPortfolioController],
   exports: [PortfolioService],
 })
 export class PortfolioModule {}

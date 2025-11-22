@@ -38,12 +38,22 @@ export class CommissionService {
     return this.commissionRepository.findOneWithTagAndUserById(commission.id);
   }
 
-  async getCommissionsPaginationByHandle(query: GetCommissionsQueryDto) {
+  async getCommissionsPagination(query: GetCommissionsQueryDto) {
+    return this.commissionRepository.findAllWithUserAndTagPaginationCategory(
+      query.category,
+      query,
+    );
+  }
+
+  async getCommissionsPaginationByHandle(
+    handle: string,
+    query: GetCommissionsQueryDto,
+  ) {
     const userId = await (async () => {
-      if (!query.handle) {
+      if (!handle) {
         return undefined;
       }
-      const user = await this.userService.getUserByHandle(query.handle);
+      const user = await this.userService.getUserByHandle(handle);
       return user.id;
     })();
     return this.commissionRepository.findAllWithUserAndTagPaginationByUserIdAndCategory(

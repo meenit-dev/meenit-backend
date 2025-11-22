@@ -66,6 +66,13 @@ export class PortfolioService {
     );
   }
 
+  async getPortfoliosPagination(query: GetPortfoliosQueryDto) {
+    return this.portfolioRepository.findAllPaginationCategory(
+      query.category,
+      query,
+    );
+  }
+
   async getPortfolioById(id: UUID) {
     const portfolio = await this.portfolioRepository.findOneById(id);
     if (!portfolio) {

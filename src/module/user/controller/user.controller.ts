@@ -21,7 +21,7 @@ import { ReqUser } from '@common/decorator';
 @UseGuards(AuthUserGuard)
 @ApiSecurity(AuthType.USER)
 @Controller({ path: 'user', version: '1' })
-@ApiTags('User')
+@ApiTags('Me')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

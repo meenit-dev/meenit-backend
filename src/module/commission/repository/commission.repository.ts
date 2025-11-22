@@ -25,6 +25,18 @@ export class CommissionRepository extends CommonRepository<Commission> {
     });
   }
 
+  async findAllWithUserAndTagPaginationCategory(
+    category: CommissionCategory | null,
+    paginationOptions: PaginationDto,
+  ) {
+    return this.findAllPagination({
+      where: { ...(category ? { category } : {}) },
+      paginationOptions,
+      order: { createdAt: -1 },
+      relations: { tags: { tag: true }, user: true },
+    });
+  }
+
   async findAllWithUserAndTagPaginationByUserIdAndCategory(
     userId: UUID,
     category: CommissionCategory | null,

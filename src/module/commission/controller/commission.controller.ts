@@ -55,7 +55,7 @@ export class CommissionController {
     @Query() query: GetCommissionsQueryDto,
   ) {
     return new GetCommissionsResponseDto(
-      await this.commissionService.getCommissionsPaginationByHandle(query),
+      await this.commissionService.getCommissionsPagination(query),
     );
   }
 

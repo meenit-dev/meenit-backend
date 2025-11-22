@@ -26,15 +26,6 @@ export class CommissionParamDto {
 
 export class GetCommissionsQueryDto extends PaginationDto {
   @ApiProperty({
-    description: 'user 고유 인식 값',
-    example: 'Hong1',
-    required: false,
-  })
-  @IsOptional()
-  @IsHandle()
-  handle?: string;
-
-  @ApiProperty({
     description: 'Commission 카테고리',
     example: CommissionCategory.WRITING,
     required: false,

@@ -8,6 +8,7 @@ import { UserModule } from '../user/user.module';
 import { CommissionTag } from './entity/commission.tag.entity';
 import { CommissionTagRepository } from './repository/commission.tag.repository';
 import { TagModule } from '../tag/tag.module';
+import { UserCommissionController } from './controller/user.commission.controller';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { TagModule } from '../tag/tag.module';
     TagModule,
   ],
   providers: [CommissionService, CommissionRepository, CommissionTagRepository],
-  controllers: [CommissionController],
+  controllers: [CommissionController, UserCommissionController],
   exports: [CommissionService],
 })
 export class CommissionModule {}

@@ -37,6 +37,17 @@ export class PortfolioRepository extends CommonRepository<Portfolio> {
     });
   }
 
+  async findAllPaginationCategory(
+    category: PortfolioCategory | null,
+    paginationOptions: PaginationDto,
+  ) {
+    return this.findAllPagination({
+      where: { ...(category ? { category } : {}) },
+      paginationOptions,
+      order: { createdAt: -1 },
+    });
+  }
+
   async increseViewCountById(id: UUID) {
     await this.repository.increment({ id }, 'viewCount', 1);
   }
