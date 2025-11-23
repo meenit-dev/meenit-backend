@@ -87,20 +87,9 @@ export class CommissionResponseDto {
   updatedAt: Date;
 }
 
-export class GetCommissionsResponseDto {
-  @ApiProperty({
-    description: '리스트',
-    type: [CommissionResponseDto],
-  })
-  list: CommissionResponseDto[];
-
-  @ApiProperty({
-    description: '데이터 개수',
-    example: 120,
-  })
-  totalCount: number;
-
+export class GetCommissionsResponseDto extends PaginationResponseDto<CommissionResponseDto> {
   constructor({ list, totalCount }: PaginationResponseDto<Commission>) {
+    super();
     this.list = list.map(
       ({
         id,

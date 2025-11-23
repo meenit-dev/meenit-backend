@@ -7,7 +7,6 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { UserHandleParamDto } from 'src/module/user/dto/user.dto';
 import { UUID } from '@common/type';
 import { PortfolioCategory } from '../type/portfolio.type';
 import { PaginationDto } from '@common/dto';
@@ -15,7 +14,7 @@ import { PaginationResponseDto } from '@common/repository/repository.dto';
 import { ResourceDto } from '@common/dto/resource.dto';
 import { IsOptionalDefined } from '@common/decorator/dto.decorator';
 
-export class PortfolioParamDto extends UserHandleParamDto {
+export class PortfolioParamDto {
   @ApiProperty({
     description: 'portfolio 고유 아이디',
     example: 'id',
@@ -80,41 +79,22 @@ export class PortfolioResponseDto {
     example: '2024-01-01T00:00:00.000Z',
   })
   updatedAt: Date;
+
+  constructor(portfolio: Portfolio) {
+    this.id = portfolio.id;
+    this.category = portfolio.category;
+    this.thumbnailUrl = portfolio.thumbnailUrl;
+    this.likeCount = portfolio.likeCount;
+    this.viewCount = portfolio.viewCount;
+    this.createdAt = portfolio.createdAt;
+    this.updatedAt = portfolio.updatedAt;
+  }
 }
 
-export class GetPortfoliosResponseDto {
-  @ApiProperty({
-    description: 'tag 정보 리스트',
-    type: [PortfolioResponseDto],
-  })
-  list: PortfolioResponseDto[];
-
-  @ApiProperty({
-    description: '데이터 개수',
-    example: 120,
-  })
-  totalCount: number;
-
+export class GetPortfoliosResponseDto extends PaginationResponseDto<PortfolioResponseDto> {
   constructor({ list, totalCount }: PaginationResponseDto<Portfolio>) {
-    this.list = list.map(
-      ({
-        id,
-        category,
-        thumbnailUrl,
-        likeCount,
-        viewCount,
-        createdAt,
-        updatedAt,
-      }) => ({
-        id,
-        category,
-        thumbnailUrl,
-        likeCount,
-        viewCount,
-        createdAt,
-        updatedAt,
-      }),
-    );
+    super();
+    this.list = list.map((portfolio) => new PortfolioResponseDto(portfolio));
     this.totalCount = totalCount;
   }
 }

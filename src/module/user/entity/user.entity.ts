@@ -1,11 +1,12 @@
 import { CommonBaseEntity } from 'src/common/entity/common-base.entity';
-import { Column, Entity, Index, OneToOne } from 'typeorm';
+import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
 import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { PatchUserInfoBodyDto } from '../dto/user.dto';
 import { UserType } from '../type/user.type';
 import { Account } from './account.entity';
 import { UserProfile } from './user.profile.entity';
 import { generateSecureRandomId } from '@common/util';
+import { Portfolio } from 'src/module/portfolio/entity/portfolio.entity';
 
 @Entity({ name: 'user' })
 export class User extends CommonBaseEntity {
@@ -39,6 +40,9 @@ export class User extends CommonBaseEntity {
 
   @OneToOne(() => UserProfile, (profile) => profile.user)
   profile: UserProfile;
+
+  @OneToMany(() => Portfolio, (portfolio) => portfolio.user)
+  portfolios: Portfolio[];
 
   static of(createRequest: SignUpRequestDto): User {
     const user = new User();

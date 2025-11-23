@@ -5,9 +5,9 @@ import { Portfolio } from './portfolio.entity';
 import { Tag } from 'src/module/tag/entity/tag.entity';
 
 @Entity({ name: 'portfolio_tag' })
+@Index(['portfolioId', 'tagId'])
 export class PortfolioTag extends CommonBaseEntity {
   @Column({ name: 'portfolio_id', nullable: false, type: 'uuid' })
-  @Index()
   portfolioId: UUID;
 
   @Column({ name: 'tag_id', nullable: false, type: 'uuid' })

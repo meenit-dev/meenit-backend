@@ -5,7 +5,6 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserHandleParamDto } from 'src/module/user/dto/user.dto';
 import { SlotService } from '../service/slot.service';
 import {
   GetSlotsResponseDto,
@@ -15,6 +14,7 @@ import {
 import { AuthUserGuard } from 'src/module/auth/guard/auth.user.guard';
 import { AuthType, UserPayload } from 'src/module/auth/type/auth.type';
 import { ReqUser } from '@common/decorator';
+import { UserHandleParamDto } from '@common/dto/user.dto';
 
 @Controller({ path: 'users/:handle/slots', version: '1' })
 @ApiTags('User')

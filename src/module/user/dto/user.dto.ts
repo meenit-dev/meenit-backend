@@ -1,18 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { User } from '../entity/user.entity';
 import { UserType } from '../type/user.type';
 import { Account } from '../entity/account.entity';
 import { IsHandle } from '@common/decorator';
-
-export class UserHandleParamDto {
-  @ApiProperty({
-    description: 'user 고유 인식 값',
-    example: 'Hong1',
-  })
-  @IsHandle()
-  handle: string;
-}
+import { PaginationResponseDto } from '@common/repository/repository.dto';
+import { PaginationDto } from '@common/dto';
+import { PortfolioCategory } from 'src/module/portfolio/type/portfolio.type';
+import { PortfolioResponseDto } from 'src/module/portfolio/dto/portfolio.dto';
+import { TransArrayQuery } from '@common/decorator/dto.decorator';
 
 export class UserResponseDto {
   @ApiProperty({
@@ -67,6 +69,51 @@ export class UserResponseDto {
     this.type = user.type;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
+  }
+}
+
+export class GetUsersQueryDto extends PaginationDto {
+  @ApiProperty({
+    description: 'portfolio 카테고리',
+    example: PortfolioCategory.WRITING,
+    required: false,
+    enum: PortfolioCategory,
+  })
+  @IsOptional()
+  @IsEnum(PortfolioCategory)
+  category?: PortfolioCategory;
+
+  @ApiProperty({
+    description: 'portfolio 태그',
+    example: 'SD',
+    required: false,
+  })
+  @IsOptional()
+  @TransArrayQuery()
+  @IsString({ each: true })
+  tags?: string[];
+}
+
+export class CreatorResponseDto extends UserResponseDto {
+  @ApiProperty({
+    description: '리스트',
+    type: [PortfolioResponseDto],
+  })
+  portfolios: PortfolioResponseDto[];
+
+  constructor(user: User) {
+    super(user);
+    this.portfolios = user.portfolios.map(
+      (portfolio) => new PortfolioResponseDto(portfolio),
+    );
+  }
+}
+
+export class GetCreatorsResponseDto extends PaginationResponseDto<CreatorResponseDto> {
+  constructor({ list, totalCount }: PaginationResponseDto<User>) {
+    super();
+    this.list = list.map((user) => new CreatorResponseDto(user));
+    this.totalCount = totalCount;
   }
 }
 

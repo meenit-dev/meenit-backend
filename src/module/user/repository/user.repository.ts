@@ -5,6 +5,7 @@ import { User } from '../entity/user.entity';
 import { CommonRepository } from '@common/repository/common.repository';
 import { SsoProvider } from 'src/module/auth/type/auth.type';
 import { UUID } from '@common/type';
+import { FindCreatorsPagination } from '../dto/user.query.dto';
 
 @Injectable()
 export class UserRepository extends CommonRepository<User> {
@@ -32,6 +33,28 @@ export class UserRepository extends CommonRepository<User> {
         profile: true,
       },
     });
+  }
+
+  async findCreatorsPagination(query: FindCreatorsPagination) {
+    const qb = this.repository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.portfolios', 'portfolio')
+      .orderBy('portfolio.createdAt', 'DESC')
+      .skip(query.limit * (query.page - 1))
+      .take(query.limit);
+
+    if (query.category) {
+      qb.andWhere('portfolio.category = :category', {
+        category: query.category,
+      });
+    }
+    if (query.tagIds?.length) {
+      qb.leftJoin('portfolio.tags', 'tag');
+      qb.andWhere('tag.tagId IN (:...tagIds)', { tagIds: query.tagIds });
+    }
+
+    const [list, totalCount] = await qb.getManyAndCount();
+    return { list, totalCount };
   }
 
   async findOneByProviderAndProviderId(

@@ -10,11 +10,13 @@ import { UserProfileRepository } from './repository/user.profile.repository';
 import { UserProfile } from './entity/user.profile.entity';
 import { AccountRepository } from './repository/account.repository';
 import { StorageModule } from '../storage/storage.module';
+import { TagModule } from '../tag/tag.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Account, UserProfile]),
     StorageModule,
+    TagModule,
   ],
   providers: [
     UserService,

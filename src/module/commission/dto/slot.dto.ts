@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNumber, IsUUID } from 'class-validator';
 import { UUID } from '@common/type';
-import { UserHandleParamDto } from 'src/module/user/dto/user.dto';
 import { Slot } from '../entity/slot.entity';
 import { IsOptionalDefined } from '@common/decorator/dto.decorator';
+import { UserHandleParamDto } from '@common/dto/user.dto';
 
 export class SlotIdtParamDto extends UserHandleParamDto {
   @ApiProperty({

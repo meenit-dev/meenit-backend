@@ -5,7 +5,7 @@ import {
   GetCommissionsResponseDto,
   GetCommissionsQueryDto,
 } from '../dto/commission.dto';
-import { UserHandleParamDto } from 'src/module/user/dto/user.dto';
+import { UserHandleParamDto } from '@common/dto/user.dto';
 
 @Controller({ path: 'users/:handle/commissions', version: '1' })
 @ApiTags('User')
