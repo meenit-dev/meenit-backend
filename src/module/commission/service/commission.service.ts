@@ -49,15 +49,9 @@ export class CommissionService {
     handle: string,
     query: GetCommissionsQueryDto,
   ) {
-    const userId = await (async () => {
-      if (!handle) {
-        return undefined;
-      }
-      const user = await this.userService.getUserByHandle(handle);
-      return user.id;
-    })();
+    const user = await this.userService.getUserByHandle(handle);
     return this.commissionRepository.findAllWithUserAndTagPaginationByUserIdAndCategory(
-      userId,
+      user.id,
       query.category,
       query,
     );

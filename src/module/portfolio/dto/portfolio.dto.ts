@@ -6,7 +6,6 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  ValidateIf,
 } from 'class-validator';
 import { UserHandleParamDto } from 'src/module/user/dto/user.dto';
 import { UUID } from '@common/type';
@@ -14,6 +13,7 @@ import { PortfolioCategory } from '../type/portfolio.type';
 import { PaginationDto } from '@common/dto';
 import { PaginationResponseDto } from '@common/repository/repository.dto';
 import { ResourceDto } from '@common/dto/resource.dto';
+import { IsOptionalDefined } from '@common/decorator/dto.decorator';
 
 export class PortfolioParamDto extends UserHandleParamDto {
   @ApiProperty({
@@ -249,8 +249,7 @@ export class PatchPortfoliosBodyDto {
     enum: PortfolioCategory,
   })
   @IsEnum(PortfolioCategory)
-  @IsOptional()
-  @ValidateIf((object, value) => value !== undefined)
+  @IsOptionalDefined()
   category?: PortfolioCategory;
 
   @ApiProperty({

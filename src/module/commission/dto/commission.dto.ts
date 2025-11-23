@@ -6,14 +6,13 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  ValidateIf,
 } from 'class-validator';
 import { UUID } from '@common/type';
 import { CommissionCategory } from '../type/commission.type';
 import { PaginationDto } from '@common/dto';
 import { PaginationResponseDto } from '@common/repository/repository.dto';
-import { IsHandle } from '@common/decorator';
 import { UserResponseDto } from 'src/module/user/dto/user.dto';
+import { IsOptionalDefined } from '@common/decorator/dto.decorator';
 
 export class CommissionParamDto {
   @ApiProperty({
@@ -90,7 +89,7 @@ export class CommissionResponseDto {
 
 export class GetCommissionsResponseDto {
   @ApiProperty({
-    description: 'tag 정보 리스트',
+    description: '리스트',
     type: [CommissionResponseDto],
   })
   list: CommissionResponseDto[];
@@ -277,8 +276,7 @@ export class PatchCommissionBodyDto {
     enum: CommissionCategory,
   })
   @IsEnum(CommissionCategory)
-  @IsOptional()
-  @ValidateIf((object, value) => value !== undefined)
+  @IsOptionalDefined()
   category?: CommissionCategory;
 
   @ApiProperty({
@@ -287,8 +285,7 @@ export class PatchCommissionBodyDto {
     required: false,
   })
   @IsString()
-  @IsOptional()
-  @ValidateIf((object, value) => value !== undefined)
+  @IsOptionalDefined()
   title?: string;
 
   @ApiProperty({
@@ -297,8 +294,7 @@ export class PatchCommissionBodyDto {
     required: false,
   })
   @IsString()
-  @IsOptional()
-  @ValidateIf((object, value) => value !== undefined)
+  @IsOptionalDefined()
   description?: string;
 
   @ApiProperty({
@@ -307,8 +303,7 @@ export class PatchCommissionBodyDto {
     required: false,
   })
   @IsString()
-  @IsOptional()
-  @ValidateIf((object, value) => value !== undefined)
+  @IsOptionalDefined()
   contents?: string;
 
   @ApiProperty({
@@ -337,6 +332,6 @@ export class PatchCommissionBodyDto {
   })
   @IsString({ each: true })
   @ArrayMaxSize(5)
-  @IsOptional()
+  @IsOptionalDefined()
   tags?: string[];
 }

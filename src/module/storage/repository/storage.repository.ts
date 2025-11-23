@@ -26,7 +26,7 @@ export class ResourceRepository extends CommonRepository<Resource> {
     return this.repository.findBy({
       userId,
       uploaded: false,
-      createdAt: LessThan(subMinutes(new Date(), 5)),
+      createdAt: LessThan(subMinutes(new Date(), 10)),
     });
   }
 
