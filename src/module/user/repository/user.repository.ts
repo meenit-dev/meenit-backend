@@ -6,6 +6,7 @@ import { CommonRepository } from '@common/repository/common.repository';
 import { SsoProvider } from 'src/module/auth/type/auth.type';
 import { UUID } from '@common/type';
 import { FindCreatorsPagination } from '../dto/user.query.dto';
+import { UserType } from '../type/user.type';
 
 @Injectable()
 export class UserRepository extends CommonRepository<User> {
@@ -40,6 +41,7 @@ export class UserRepository extends CommonRepository<User> {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.portfolios', 'portfolio')
       .orderBy('portfolio.createdAt', 'DESC')
+      .where(`type = '${UserType.CREATOR}'`)
       .skip(query.limit * (query.page - 1))
       .take(query.limit);
 
