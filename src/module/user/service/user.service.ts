@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
 import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { User } from '../entity/user.entity';
-import {
-  GetUsersQueryDto,
-  PatchUserInfoBodyDto,
-  PutUserAccountBodyDto,
-} from '../dto/user.dto';
+import { PatchUserInfoBodyDto, PutUserAccountBodyDto } from '../dto/user.dto';
 import { SsoProvider, UserPayload } from 'src/module/auth/type/auth.type';
 import { DuplicatedError, NotFoundError } from '@common/error';
 import { UserProfileRepository } from '../repository/user.profile.repository';
@@ -16,7 +12,7 @@ import { UUID } from '@common/type';
 import { AccountRepository } from '../repository/account.repository';
 import { Account } from '../entity/account.entity';
 import { ResourceService } from 'src/module/storage/service/resource.service';
-import { TagService } from 'src/module/tag/service/tag.service';
+import { FindCreatorsPagination } from '../dto/user.query.dto';
 
 @Injectable()
 export class UserService {
@@ -25,7 +21,6 @@ export class UserService {
     private readonly userProfileRepository: UserProfileRepository,
     private readonly accountRepository: AccountRepository,
     private readonly resourceService: ResourceService,
-    private readonly tagService: TagService,
   ) {}
 
   async getUserById(id: string) {
@@ -52,11 +47,8 @@ export class UserService {
     return user;
   }
 
-  async getCreatorPagination(query: GetUsersQueryDto) {
-    const tagIds = query.tags
-      ? (await this.tagService.getTagsByNames(query.tags)).map((tag) => tag.id)
-      : undefined;
-    return this.userRepository.findCreatorsPagination({ ...query, tagIds });
+  async getCreatorPagination(query: FindCreatorsPagination) {
+    return this.userRepository.findCreatorsTopPortfolios(query);
   }
 
   async getUserWithProfileByHandle(handle: string) {

@@ -5,8 +5,9 @@ import { User } from '../entity/user.entity';
 import { CommonRepository } from '@common/repository/common.repository';
 import { SsoProvider } from 'src/module/auth/type/auth.type';
 import { UUID } from '@common/type';
-import { FindCreatorsPagination } from '../dto/user.query.dto';
 import { UserType } from '../type/user.type';
+import { FindCreatorsPagination } from 'src/module/user/dto/user.query.dto';
+import { Portfolio } from 'src/module/portfolio/entity/portfolio.entity';
 
 @Injectable()
 export class UserRepository extends CommonRepository<User> {
@@ -36,24 +37,41 @@ export class UserRepository extends CommonRepository<User> {
     });
   }
 
-  async findCreatorsPagination(query: FindCreatorsPagination) {
+  async findCreatorsTopPortfolios(query: FindCreatorsPagination) {
     const qb = this.repository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.portfolios', 'portfolio')
-      .orderBy('portfolio.createdAt', 'DESC')
-      .where(`type = '${UserType.CREATOR}'`)
+      .where('user.type = :type', { type: UserType.CREATOR })
       .skip(query.limit * (query.page - 1))
       .take(query.limit);
 
+    const portfolioSub = qb
+      .subQuery()
+      .select('p.id')
+      .from(Portfolio, 'p')
+      .where('p.user_id = user.id')
+      .orderBy('p.created_at', 'DESC')
+      .limit(5);
+
     if (query.category) {
-      qb.andWhere('portfolio.category = :category', {
+      portfolioSub.andWhere('p.category = :category', {
         category: query.category,
       });
     }
+
     if (query.tagIds?.length) {
-      qb.leftJoin('portfolio.tags', 'tag');
-      qb.andWhere('tag.tagId IN (:...tagIds)', { tagIds: query.tagIds });
+      portfolioSub
+        .leftJoin('p.tags', 'pt')
+        .andWhere('pt.tagId IN (:...tagIds)', { tagIds: query.tagIds });
     }
+
+    qb.leftJoinAndMapMany(
+      'user.portfolios',
+      Portfolio,
+      'portfolios',
+      `portfolios.id IN (${portfolioSub.getQuery()})`,
+    );
+    qb.setParameters(portfolioSub.getParameters());
+    qb.orderBy('portfolios.createdAt', 'DESC');
 
     const [list, totalCount] = await qb.getManyAndCount();
     return { list, totalCount };

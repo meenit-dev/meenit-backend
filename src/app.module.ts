@@ -15,6 +15,7 @@ import { MailModule } from './module/mail/mail.module';
 import { TagModule } from './module/tag/tag.module';
 import { PortfolioModule } from './module/portfolio/portfolio.module';
 import { CommissionModule } from './module/commission/commission.module';
+import { CreatorModule } from './module/creator/creator.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { CommissionModule } from './module/commission/commission.module';
     TagModule,
     PortfolioModule,
     CommissionModule,
+    CreatorModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_FILTER, useClass: CustomExceptionFilter }],
