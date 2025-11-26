@@ -16,6 +16,7 @@ import { TagModule } from './module/tag/tag.module';
 import { PortfolioModule } from './module/portfolio/portfolio.module';
 import { CommissionModule } from './module/commission/commission.module';
 import { CreatorModule } from './module/creator/creator.module';
+import { NotionModule } from './module/notion/notion.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CreatorModule } from './module/creator/creator.module';
     PortfolioModule,
     CommissionModule,
     CreatorModule,
+    NotionModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_FILTER, useClass: CustomExceptionFilter }],
