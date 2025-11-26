@@ -6,6 +6,7 @@ import { Resource } from '../entity/resource.entity';
 import { ResourceProvider } from '../type/resource.type';
 import { UUID } from '@common/type';
 import { subMinutes } from 'date-fns';
+import { StorageType } from '../type/storage.type';
 
 @Injectable()
 export class ResourceRepository extends CommonRepository<Resource> {
@@ -18,11 +19,11 @@ export class ResourceRepository extends CommonRepository<Resource> {
     super();
   }
 
-  findOneByProviderAndKey(provider: ResourceProvider, key: string) {
+  async findOneByProviderAndKey(provider: ResourceProvider, key: string) {
     return this.repository.findOneBy({ provider, key });
   }
 
-  findNotUploadedByUserId(userId: UUID) {
+  async findNotUploadedByUserId(userId: UUID) {
     return this.repository.findBy({
       userId,
       uploaded: false,
@@ -30,7 +31,28 @@ export class ResourceRepository extends CommonRepository<Resource> {
     });
   }
 
-  softDeleteByProviderAndKey(provider: ResourceProvider, key: string) {
+  async findPortfolioResourceSizeAndCountByUserId(userId: UUID) {
+    const qb = this.repository
+      .createQueryBuilder('r')
+      .select('SUM(r.size)', 'usedSize')
+      .addSelect('COUNT(*)', 'fileCount')
+      .where('r.userId = :userId', { userId })
+      .andWhere('r.uploaded = :uploaded', { uploaded: true })
+      .andWhere('r.type = :type', { type: StorageType.PORTFOLIO })
+      .andWhere('r.deletedAt IS NULL')
+      .groupBy('r.userId');
+
+    const { usedSize, fileCount } = await qb.getRawOne<{
+      usedSize: number;
+      fileCount: number;
+    }>();
+    return {
+      usedSize: Number(usedSize ?? 0),
+      fileCount: Number(fileCount ?? 0),
+    };
+  }
+
+  async softDeleteByProviderAndKey(provider: ResourceProvider, key: string) {
     return this.repository.softDelete({ provider, key });
   }
 }

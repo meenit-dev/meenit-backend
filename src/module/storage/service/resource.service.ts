@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { StorageType } from '../type/storage.type';
+import { DEFAULT_STORAGE_SIZE, StorageType } from '../type/storage.type';
 import { ResourceRepository } from '../repository/storage.repository';
 import { Resource } from '../entity/resource.entity';
 import { StorageService } from './storage.service';
@@ -19,6 +19,19 @@ export class ResourceService {
     private readonly resourceRepository: ResourceRepository,
     private readonly storageService: StorageService,
   ) {}
+
+  async getUserStorageInfo(userId: UUID) {
+    const { usedSize, fileCount } =
+      await this.resourceRepository.findPortfolioResourceSizeAndCountByUserId(
+        userId,
+      );
+
+    return {
+      totalSize: DEFAULT_STORAGE_SIZE,
+      usedSize,
+      fileCount,
+    };
+  }
 
   @Transactional()
   async getResourceTicket(

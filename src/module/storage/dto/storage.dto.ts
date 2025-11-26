@@ -38,13 +38,31 @@ export class PutPreSignedUrlResponseDto {
     description: '업로드할 파일의 Presigned Url',
     example: 'https://meenit.com',
   })
-  @IsString()
   presignedUrl: string;
 
   @ApiProperty({
     description: '업로드 성공 시 조회 가능한 Url',
     example: 'https://meenit.com',
   })
-  @IsString()
   publicUrl: string;
+}
+
+export class GetUserStorageInfoResponseDto {
+  @ApiProperty({
+    description: '사용가능한 스토리지 사이즈(Byte)',
+    example: 100000,
+  })
+  totalSize: number;
+
+  @ApiProperty({
+    description: '사용중인 스토리지 사이즈(Byte)',
+    example: 100000,
+  })
+  usedSize: number;
+
+  @ApiProperty({
+    description: '업로드된 파일의 개수',
+    example: 10,
+  })
+  fileCount: number;
 }
