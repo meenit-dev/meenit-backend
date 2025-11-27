@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   GetObjectCommand,
   HeadObjectCommand,
-  ObjectCannedACL,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -14,8 +13,8 @@ import { BadRequestError } from '@common/error';
 
 @Injectable()
 export class StorageService {
-  private readonly BUCKET = process.env.NCP_BUCKET;
-  private readonly MEENIT_RESOURCE_BASE_URL = `https://${this.BUCKET}.kr.object.ncloudstorage.com`;
+  private readonly BUCKET = process.env.R2_BUCKET;
+  private readonly MEENIT_RESOURCE_BASE_URL = process.env.R2_RESOURCE_URL;
 
   constructor(@Inject(STORAGE_PROVIDER) private readonly s3Client: S3Client) {}
 
@@ -23,31 +22,26 @@ export class StorageService {
     switch (type) {
       case StorageType.THUMBNAIL:
         return {
-          acl: ObjectCannedACL.public_read,
           path: `users/${user.id}/thumbnail/${v7()}.${extention}`,
           maxSizeBytes: 1048576, // 1MB
         };
       case StorageType.AVATAR:
         return {
-          acl: ObjectCannedACL.public_read,
           path: `users/${user.id}/avatar/${v7()}.${extention}`,
           maxSizeBytes: 1048576, // 1MB
         };
       case StorageType.COMMISSION:
         return {
-          acl: ObjectCannedACL.public_read,
           path: `users/${user.id}/commission/${v7()}.${extention}`,
           maxSizeBytes: 5242880, //5242880, // 5MB
         };
       case StorageType.PORTFOLIO:
         return {
-          acl: ObjectCannedACL.public_read,
           path: `users/${user.id}/portfolio/${v7()}.${extention}`,
           maxSizeBytes: 31457280, // 30MB
         };
       case StorageType.PROFILE_BACKGROUPD:
         return {
-          acl: ObjectCannedACL.public_read,
           path: `users/${user.id}/profileBackground/${v7()}.${extention}`,
           maxSizeBytes: 5242880, // 5MB
         };
@@ -61,7 +55,7 @@ export class StorageService {
     extention: string,
     contentLength: number,
   ) {
-    const { acl, path, maxSizeBytes } = this.getStorageFileMeta(
+    const { path, maxSizeBytes } = this.getStorageFileMeta(
       user,
       type,
       extention,
@@ -74,7 +68,6 @@ export class StorageService {
       Bucket: this.BUCKET,
       Key: path,
       ContentType: mimeType,
-      ACL: acl,
       ContentLength: contentLength,
     });
 
@@ -88,7 +81,7 @@ export class StorageService {
 
   async getDownloadUrl(fileKey: string) {
     const command = new GetObjectCommand({
-      Bucket: process.env.NCP_BUCKET,
+      Bucket: this.BUCKET,
       Key: fileKey,
     });
 

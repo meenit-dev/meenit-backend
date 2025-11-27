@@ -12,8 +12,7 @@ import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class ResourceService {
-  private readonly BUCKET = process.env.NCP_BUCKET;
-  private readonly MEENIT_RESOURCE_BASE_URL = `https://${this.BUCKET}.kr.object.ncloudstorage.com`;
+  private readonly MEENIT_RESOURCE_BASE_URL = process.env.R2_RESOURCE_URL;
 
   constructor(
     private readonly resourceRepository: ResourceRepository,
@@ -85,7 +84,7 @@ export class ResourceService {
           url.match(/[?&]v=([A-Za-z0-9_-]{6,})/) ||
           url.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{6,})/))?.[1];
       case ResourceProvider.MEENIT:
-        return url.split('.com/')[1];
+        return url.split('.co/')[1];
     }
   }
 
@@ -103,6 +102,7 @@ export class ResourceService {
       return;
     }
     const key = this.getKeyByProviderAndUrl(provider, url);
+    console.log(key, provider, url);
     if (!key) {
       throw new BadRequestError();
     }

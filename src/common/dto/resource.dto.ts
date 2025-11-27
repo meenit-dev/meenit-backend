@@ -25,7 +25,7 @@ export class ResourceDto {
       case ResourceProvider.YOUTUBE:
         return `https://youtu.be/${resource.key}`;
       case ResourceProvider.MEENIT:
-        return `https://${process.env.NCP_BUCKET}.kr.object.ncloudstorage.com/${resource.key}`;
+        return `${process.env.R2_RESOURCE_URL}/${resource.key}`;
     }
   }
 }

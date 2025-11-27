@@ -15,12 +15,12 @@ import { StorageController } from './controller/storage.controller';
       provide: STORAGE_PROVIDER,
       useFactory: () => {
         return new S3Client({
-          region: process.env.NCP_REGION,
+          region: 'auto',
           credentials: {
-            accessKeyId: process.env.NCP_ACCESS_KEY,
-            secretAccessKey: process.env.NCP_SECRET_KEY,
+            accessKeyId: process.env.R2_ACCESS_KEY,
+            secretAccessKey: process.env.R2_SECRET_KEY,
           },
-          endpoint: process.env.NCP_ENDPOINT,
+          endpoint: process.env.R2_ENDPOINT,
         });
       },
     },
