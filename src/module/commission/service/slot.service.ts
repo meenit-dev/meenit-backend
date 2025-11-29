@@ -34,28 +34,43 @@ export class SlotService {
 
   @Transactional()
   async getSlotsByHandle(handle: string) {
-    const user = await this.userService.getUserByHandle(handle);
+    const user = await this.userService.getCreatorByHandle(handle);
     const months = this.getNextMonths(this.SLOT_COUNT);
-    const slots = await this.slotRepository.findManyUserIdAndDurationMonth(
-      user.id,
-      months[0],
-      months[months.length - 1],
-    );
-    if (slots.length === this.SLOT_COUNT) {
+    const slots =
+      await this.slotRepository.findManyUserIdAndDurationMonthAndSplit(
+        user.id,
+        months[0],
+        months[months.length - 1],
+        user.creatorSetting.slotMonthSplitCount,
+      );
+    if (
+      slots.length ===
+      this.SLOT_COUNT * user.creatorSetting.slotMonthSplitCount
+    ) {
       return slots;
     }
 
-    const slotMonths = slots.map((slot) => slot.month);
     const createSlots = await Promise.all(
       months
-        .filter((month) => !slotMonths.includes(month))
-        .map((month) =>
-          this.slotRepository.save(Slot.of({ userId: user.id, month })),
+        .flatMap((month) =>
+          Array.from(
+            { length: user.creatorSetting.slotMonthSplitCount },
+            (_, i) => ({ month, split: i + 1 }),
+          ),
+        )
+        .filter(
+          ({ month, split }) =>
+            !slots.find((slot) => slot.month === month && slot.split === split),
+        )
+        .map(({ month, split }) =>
+          this.slotRepository.save(Slot.of({ userId: user.id, month, split })),
         ),
     );
     return slots
       .concat(createSlots)
-      .sort(({ month: a }, { month: b }) => (a > b ? 1 : -1));
+      .sort(({ month: a, split: a_s }, { month: b, split: b_s }) =>
+        a === b ? (a_s > b_s ? 1 : -1) : a > b ? 1 : -1,
+      );
   }
 
   @Transactional()

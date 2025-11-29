@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Between, Repository } from 'typeorm';
+import { Between, LessThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommonRepository } from '@common/repository/common.repository';
 import { Slot } from '../entity/slot.entity';
@@ -16,15 +16,17 @@ export class SlotRepository extends CommonRepository<Slot> {
     super();
   }
 
-  async findManyUserIdAndDurationMonth(
+  async findManyUserIdAndDurationMonthAndSplit(
     userId: UUID,
     startMonth: string,
     endMonth: string,
+    split: number,
   ) {
     return this.repository.find({
       where: {
         userId,
         month: Between(startMonth, endMonth),
+        split: LessThanOrEqual(split),
       },
       order: { month: 1 },
     });

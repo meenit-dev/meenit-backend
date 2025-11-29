@@ -1,9 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 import { User } from '../entity/user.entity';
 import { UserType } from '../type/user.type';
 import { Account } from '../entity/account.entity';
 import { IsHandle } from '@common/decorator';
+import { IsOptionalDefined } from '@common/decorator/dto.decorator';
+import { SlotStatus } from 'src/module/commission/type/commission.type';
+import { Type } from 'class-transformer';
 
 export class UserResponseDto {
   @ApiProperty({
@@ -224,4 +237,53 @@ export class PutUserAccountBodyDto {
   })
   @IsString()
   number: string;
+}
+
+class CreatorSlotSetting {
+  @ApiProperty({
+    description: '월별 split 수',
+    example: 1,
+    required: false,
+  })
+  @IsNumber()
+  @Min(1)
+  @Max(3)
+  @IsOptionalDefined()
+  monthSplitCount?: number;
+
+  @ApiProperty({
+    description: '월별 생성시 기본 상태 값',
+    example: SlotStatus.UNSET,
+    required: false,
+  })
+  @IsEnum(SlotStatus)
+  @IsOptionalDefined()
+  defaultStatus?: SlotStatus;
+}
+
+export class GetCreatorSettingResponseDto {
+  @ApiProperty({
+    description: 'slot 설정 정보',
+    type: CreatorSlotSetting,
+  })
+  slot: CreatorSlotSetting;
+
+  constructor(user: User) {
+    this.slot = {
+      monthSplitCount: user.creatorSetting.slotMonthSplitCount,
+      defaultStatus: user.creatorSetting.slotDefaultStatus,
+    };
+  }
+}
+
+export class PatchCreatorSettingBodyDto {
+  @ApiProperty({
+    description: 'slot 설정 정보',
+    type: CreatorSlotSetting,
+    required: false,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreatorSlotSetting)
+  slot?: CreatorSlotSetting;
 }

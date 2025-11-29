@@ -2,9 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
 import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { User } from '../entity/user.entity';
-import { PatchUserInfoBodyDto, PutUserAccountBodyDto } from '../dto/user.dto';
+import {
+  PatchCreatorSettingBodyDto,
+  PatchUserInfoBodyDto,
+  PutUserAccountBodyDto,
+} from '../dto/user.dto';
 import { SsoProvider, UserPayload } from 'src/module/auth/type/auth.type';
-import { DuplicatedError, NotFoundError } from '@common/error';
+import { DuplicatedError, ForbiddenError, NotFoundError } from '@common/error';
 import { UserProfileRepository } from '../repository/user.profile.repository';
 import { UserProfile } from '../entity/user.profile.entity';
 import { Transactional } from 'typeorm-transactional';
@@ -13,6 +17,9 @@ import { AccountRepository } from '../repository/account.repository';
 import { Account } from '../entity/account.entity';
 import { ResourceService } from 'src/module/storage/service/resource.service';
 import { FindCreatorsPagination } from '../dto/user.query.dto';
+import { CreatorSettingRepository } from '../repository/creator.setting.repository';
+import { CreatorSetting } from '../entity/creator.setting.entity';
+import { UserType } from '../type/user.type';
 
 @Injectable()
 export class UserService {
@@ -21,6 +28,7 @@ export class UserService {
     private readonly userProfileRepository: UserProfileRepository,
     private readonly accountRepository: AccountRepository,
     private readonly resourceService: ResourceService,
+    private readonly creatorSettingRepository: CreatorSettingRepository,
   ) {}
 
   async getUserById(id: string) {
@@ -29,6 +37,33 @@ export class UserService {
       throw new NotFoundError();
     }
     return user;
+  }
+
+  async getUserWithCreatorSettingById(id: string) {
+    const user = await this.userRepository.findOneWithCreatorSettingById(id);
+    if (!user) {
+      throw new NotFoundError();
+    }
+    if (user.type !== UserType.CREATOR) {
+      throw new ForbiddenError();
+    }
+    return user;
+  }
+
+  async updateCreatorSetting(
+    id: UUID,
+    updateRequest: PatchCreatorSettingBodyDto,
+  ) {
+    const user = await this.getUserById(id);
+    if (user.type !== UserType.CREATOR) {
+      throw new ForbiddenError();
+    }
+    const creatorSetting = await this.creatorSettingRepository.findOneByUserId(
+      user.id,
+    );
+    await this.creatorSettingRepository.save(
+      creatorSetting.update(updateRequest),
+    );
   }
 
   async getUserWithProfileById(id: string) {
@@ -41,6 +76,15 @@ export class UserService {
 
   async getUserByHandle(handle: string) {
     const user = await this.userRepository.findOneByHandle(handle);
+    if (!user) {
+      throw new NotFoundError();
+    }
+    return user;
+  }
+
+  async getCreatorByHandle(handle: string) {
+    const user =
+      await this.userRepository.findOneWithCreatorSettingByHandle(handle);
     if (!user) {
       throw new NotFoundError();
     }
@@ -125,6 +169,7 @@ export class UserService {
       await this.accountRepository.save(
         Account.of({ ...updateAccount, userId }),
       );
+      await this.creatorSettingRepository.save(CreatorSetting.of(userId));
     } else {
       await this.accountRepository.save(account.update(updateAccount));
     }

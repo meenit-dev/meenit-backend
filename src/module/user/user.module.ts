@@ -11,10 +11,12 @@ import { UserProfile } from './entity/user.profile.entity';
 import { AccountRepository } from './repository/account.repository';
 import { StorageModule } from '../storage/storage.module';
 import { TagModule } from '../tag/tag.module';
+import { CreatorSettingRepository } from './repository/creator.setting.repository';
+import { CreatorSetting } from './entity/creator.setting.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Account, UserProfile]),
+    TypeOrmModule.forFeature([User, Account, UserProfile, CreatorSetting]),
     StorageModule,
     TagModule,
   ],
@@ -23,6 +25,7 @@ import { TagModule } from '../tag/tag.module';
     UserRepository,
     AccountRepository,
     UserProfileRepository,
+    CreatorSettingRepository,
   ],
   controllers: [UserController, UsersController],
   exports: [UserService],

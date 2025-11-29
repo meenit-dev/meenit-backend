@@ -7,6 +7,7 @@ import { Account } from './account.entity';
 import { UserProfile } from './user.profile.entity';
 import { generateSecureRandomId } from '@common/util';
 import { Portfolio } from 'src/module/portfolio/entity/portfolio.entity';
+import { CreatorSetting } from './creator.setting.entity';
 
 @Entity({ name: 'user' })
 export class User extends CommonBaseEntity {
@@ -43,6 +44,9 @@ export class User extends CommonBaseEntity {
 
   @OneToMany(() => Portfolio, (portfolio) => portfolio.user)
   portfolios: Portfolio[];
+
+  @OneToOne(() => CreatorSetting, (creatorSetting) => creatorSetting.user)
+  creatorSetting: CreatorSetting;
 
   static of(createRequest: SignUpRequestDto): User {
     const user = new User();

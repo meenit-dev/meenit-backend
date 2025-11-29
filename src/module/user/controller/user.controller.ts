@@ -15,6 +15,8 @@ import {
   PatchUserInfoBodyDto,
   PutUserAccountBodyDto,
   PutUserPhoneBodyDto,
+  GetCreatorSettingResponseDto,
+  PatchCreatorSettingBodyDto,
 } from '../dto/user.dto';
 import { ReqUser } from '@common/decorator';
 
@@ -82,5 +84,23 @@ export class UserController {
     return new GetUserAccountResponseDto(
       await this.userService.getUserAccountByUserId(user.id),
     );
+  }
+
+  @Get('me/settings/creator')
+  @ApiOperation({ summary: '크리에이터 설정 조회' })
+  @ApiOkResponse({ type: GetCreatorSettingResponseDto })
+  async getCreatorSetting(@ReqUser() user: UserPayload) {
+    return new GetCreatorSettingResponseDto(
+      await this.userService.getUserWithCreatorSettingById(user.id),
+    );
+  }
+
+  @Patch('me/settings/creator')
+  @ApiOperation({ summary: '크리에이터 설정 수정' })
+  async updateCreatorSetting(
+    @ReqUser() user: UserPayload,
+    @Body() body: PatchCreatorSettingBodyDto,
+  ) {
+    await this.userService.updateCreatorSetting(user.id, body);
   }
 }

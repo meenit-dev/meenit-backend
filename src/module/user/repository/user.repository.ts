@@ -37,6 +37,24 @@ export class UserRepository extends CommonRepository<User> {
     });
   }
 
+  async findOneWithCreatorSettingById(id: UUID) {
+    return this.repository.findOne({
+      where: { id },
+      relations: {
+        creatorSetting: true,
+      },
+    });
+  }
+
+  async findOneWithCreatorSettingByHandle(handle: string) {
+    return this.repository.findOne({
+      where: { handle },
+      relations: {
+        creatorSetting: true,
+      },
+    });
+  }
+
   async findCreatorsTopPortfolios(query: FindCreatorsPagination) {
     const qb = this.repository
       .createQueryBuilder('user')

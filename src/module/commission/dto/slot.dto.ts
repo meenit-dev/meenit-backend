@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsUUID } from 'class-validator';
+import { IsEnum, IsUUID } from 'class-validator';
 import { UUID } from '@common/type';
 import { Slot } from '../entity/slot.entity';
 import { IsOptionalDefined } from '@common/decorator/dto.decorator';
 import { UserHandleParamDto } from '@common/dto/user.dto';
+import { SlotStatus } from '../type/commission.type';
 
 export class SlotIdtParamDto extends UserHandleParamDto {
   @ApiProperty({
@@ -28,22 +29,29 @@ export class SlotResponseDto {
   month: string;
 
   @ApiProperty({
+    description: 'slot 설정 월의 split 번호',
+    example: 1,
+  })
+  split: number;
+
+  @ApiProperty({
     description: 'slot 최대 수',
     example: 5,
   })
   count: number;
 
   @ApiProperty({
-    description: 'slot 활성화 여부',
-    example: true,
+    description: 'slot 상태',
+    example: SlotStatus.UNSET,
+    enum: SlotStatus,
   })
-  active: boolean;
+  status: SlotStatus;
 
   constructor(slot: Slot) {
     this.id = slot.id;
     this.month = slot.month;
-    this.count = slot.count;
-    this.active = slot.active;
+    this.split = slot.split;
+    this.status = slot.status;
   }
 }
 
@@ -61,20 +69,12 @@ export class GetSlotsResponseDto {
 
 export class PatchSlotBodyDto {
   @ApiProperty({
-    description: 'slot 최대 수',
-    example: 5,
+    description: 'slot 상태',
+    example: SlotStatus.UNSET,
+    enum: SlotStatus,
     required: false,
   })
-  @IsNumber()
+  @IsEnum(SlotStatus)
   @IsOptionalDefined()
-  count?: number;
-
-  @ApiProperty({
-    description: 'slot 활성화 여부',
-    example: true,
-    required: false,
-  })
-  @IsBoolean()
-  @IsOptionalDefined()
-  active?: boolean;
+  status?: SlotStatus;
 }

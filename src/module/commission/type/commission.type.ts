@@ -6,3 +6,9 @@ export enum CommissionCategory {
   LIVE_2D = 'live2d',
   VIRTUAL_3D = 'virtual3d',
 }
+
+export enum SlotStatus {
+  OPEN = 'open',
+  CLOST = 'close',
+  UNSET = 'unset',
+}
