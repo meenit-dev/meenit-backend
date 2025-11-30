@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { In, Like, Repository } from 'typeorm';
+import { In, Raw, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommonRepository } from '@common/repository/common.repository';
 import { Tag } from '../entity/tag.entity';
 import { UUID } from '@common/type';
+import { HangulUtil } from '@common/util/hangul.util';
 
 @Injectable()
 export class TagRepository extends CommonRepository<Tag> {
@@ -22,7 +23,15 @@ export class TagRepository extends CommonRepository<Tag> {
 
   async findUsedTop20ByName(name?: string) {
     return this.repository.find({
-      where: { ...(name ? { name: Like(`%${name}%`) } : {}) },
+      where: {
+        ...(name
+          ? {
+              name: Raw((alias) => `${alias} ~* :pattern`, {
+                pattern: HangulUtil.createSearchPattern(name),
+              }),
+            }
+          : {}),
+      },
       order: {
         count: -1,
         name: 1,
