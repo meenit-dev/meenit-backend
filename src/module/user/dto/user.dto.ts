@@ -14,9 +14,11 @@ import { User } from '../entity/user.entity';
 import { UserType } from '../type/user.type';
 import { Account } from '../entity/account.entity';
 import { IsHandle } from '@common/decorator';
-import { IsOptionalDefined } from '@common/decorator/dto.decorator';
+import { IsOptionalDefined, ToBoolean } from '@common/decorator/dto.decorator';
 import { SlotStatus } from 'src/module/commission/type/commission.type';
 import { Type } from 'class-transformer';
+import { PaginationDto } from '@common/dto';
+import { PaginationResponseDto } from '@common/repository/repository.dto';
 
 export class UserResponseDto {
   @ApiProperty({
@@ -96,11 +98,25 @@ export class GetMyUserProfileResponseDto extends UserResponseDto {
   })
   links: string[] | null;
 
+  @ApiProperty({
+    description: '나에게 팔로우 한 유저 수',
+    example: 10,
+  })
+  followerCount: number;
+
+  @ApiProperty({
+    description: '내가 팔로우 한 유저 수',
+    example: 10,
+  })
+  followingCount: number;
+
   constructor(user: User) {
     super(user);
     this.introduction = user.profile.introduction;
     this.background = user.profile.background;
     this.links = user.profile.links;
+    this.followerCount = user.followerCount;
+    this.followingCount = user.followingCount;
   }
 }
 
@@ -286,4 +302,28 @@ export class PatchCreatorSettingBodyDto {
   @ValidateNested()
   @Type(() => CreatorSlotSetting)
   slot?: CreatorSlotSetting;
+}
+
+export class GetFollowUserQueryDto extends PaginationDto {
+  @ApiProperty({
+    description: 'true: following 유저 조회. false: follower 유저 조회',
+    type: Boolean,
+    example: true,
+  })
+  @ToBoolean()
+  isFollowing: boolean;
+}
+
+export class GetFollowUserResponseDto extends PaginationResponseDto<UserResponseDto> {
+  @ApiProperty({
+    description: '리스트',
+    type: [UserResponseDto],
+  })
+  list: UserResponseDto[];
+
+  constructor({ list, totalCount }: PaginationResponseDto<User>) {
+    super();
+    this.list = list.map((user) => new UserResponseDto(user));
+    this.totalCount = totalCount;
+  }
 }

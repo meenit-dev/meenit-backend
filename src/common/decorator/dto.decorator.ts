@@ -10,3 +10,9 @@ export function TransArrayQuery() {
     Array.isArray(value) ? value : value?.split(',') || [],
   );
 }
+
+export function ToBoolean() {
+  return Transform((value) => {
+    return value.value == 'true' ? true : false;
+  });
+}

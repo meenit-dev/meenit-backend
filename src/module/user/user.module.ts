@@ -13,10 +13,18 @@ import { StorageModule } from '../storage/storage.module';
 import { TagModule } from '../tag/tag.module';
 import { CreatorSettingRepository } from './repository/creator.setting.repository';
 import { CreatorSetting } from './entity/creator.setting.entity';
+import { FollowRepository } from './repository/follow.repository';
+import { Follow } from './entity/follow.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Account, UserProfile, CreatorSetting]),
+    TypeOrmModule.forFeature([
+      User,
+      Account,
+      UserProfile,
+      CreatorSetting,
+      Follow,
+    ]),
     StorageModule,
     TagModule,
   ],
@@ -26,6 +34,7 @@ import { CreatorSetting } from './entity/creator.setting.entity';
     AccountRepository,
     UserProfileRepository,
     CreatorSettingRepository,
+    FollowRepository,
   ],
   controllers: [UserController, UsersController],
   exports: [UserService],

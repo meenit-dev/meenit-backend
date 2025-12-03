@@ -3,12 +3,18 @@ import { UserRepository } from '../repository/user.repository';
 import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { User } from '../entity/user.entity';
 import {
+  GetFollowUserQueryDto,
   PatchCreatorSettingBodyDto,
   PatchUserInfoBodyDto,
   PutUserAccountBodyDto,
 } from '../dto/user.dto';
 import { SsoProvider, UserPayload } from 'src/module/auth/type/auth.type';
-import { DuplicatedError, ForbiddenError, NotFoundError } from '@common/error';
+import {
+  BadRequestError,
+  DuplicatedError,
+  ForbiddenError,
+  NotFoundError,
+} from '@common/error';
 import { UserProfileRepository } from '../repository/user.profile.repository';
 import { UserProfile } from '../entity/user.profile.entity';
 import { Transactional } from 'typeorm-transactional';
@@ -20,6 +26,8 @@ import { FindCreatorsPagination } from '../dto/user.query.dto';
 import { CreatorSettingRepository } from '../repository/creator.setting.repository';
 import { CreatorSetting } from '../entity/creator.setting.entity';
 import { UserType } from '../type/user.type';
+import { FollowRepository } from '../repository/follow.repository';
+import { Follow } from '../entity/follow.entity';
 
 @Injectable()
 export class UserService {
@@ -29,6 +37,7 @@ export class UserService {
     private readonly accountRepository: AccountRepository,
     private readonly resourceService: ResourceService,
     private readonly creatorSettingRepository: CreatorSettingRepository,
+    private readonly followRepository: FollowRepository,
   ) {}
 
   async getUserById(id: string) {
@@ -96,11 +105,8 @@ export class UserService {
   }
 
   async getUserWithProfileByHandle(handle: string) {
-    const user = await this.userRepository.findOneWithProfileByHandle(handle);
-    if (!user) {
-      throw new NotFoundError();
-    }
-    return user;
+    const user = await this.getUserByHandle(handle);
+    return this.getUserWithProfileById(user.id);
   }
 
   async getUserByProviderAndProviderId(
@@ -181,5 +187,25 @@ export class UserService {
       throw new NotFoundError();
     }
     return account;
+  }
+
+  async followUser(userId: UUID, handle: string) {
+    const followUser = await this.getUserByHandle(handle);
+    if (followUser.id === userId) {
+      throw new BadRequestError();
+    }
+    await this.followRepository.save(Follow.of(userId, followUser.id));
+  }
+
+  async unfollowUser(userId: UUID, handle: string) {
+    const followUser = await this.getUserByHandle(handle);
+    await this.followRepository.deleteByUserIdAndFollowUserId(
+      userId,
+      followUser.id,
+    );
+  }
+  async getFollowUserByHandle(handle: string, query: GetFollowUserQueryDto) {
+    const user = await this.getUserByHandle(handle);
+    return this.userRepository.findOneByProviderAndProviderId;
   }
 }

@@ -21,21 +21,13 @@ export class UserRepository extends CommonRepository<User> {
   }
 
   async findOneWithProfileById(id: UUID) {
-    return this.repository.findOne({
-      where: { id },
-      relations: {
-        profile: true,
-      },
-    });
-  }
-
-  async findOneWithProfileByHandle(handle: string) {
-    return this.repository.findOne({
-      where: { handle },
-      relations: {
-        profile: true,
-      },
-    });
+    return this.repository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.profile', 'profile')
+      .loadRelationCountAndMap('user.followerCount', 'user.followers')
+      .loadRelationCountAndMap('user.followingCount', 'user.following')
+      .where('user.id = :id', { id })
+      .getOne();
   }
 
   async findOneWithCreatorSettingById(id: UUID) {
@@ -130,6 +122,15 @@ export class UserRepository extends CommonRepository<User> {
     return this.repository.find({
       where: { id: In(ids) },
       withDeleted: isDeleted,
+    });
+  }
+
+  async findFollowUsersById(
+    id: UUID
+    providerId: string,
+  ) {
+    return this.repository.findOne({
+      where: { [`${provider}Id`]: providerId },
     });
   }
 }

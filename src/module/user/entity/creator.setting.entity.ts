@@ -16,7 +16,9 @@ export class CreatorSetting extends CommonBaseEntity {
   @Column({ name: 'slot_defaul_status', nullable: false, type: String })
   slotDefaultStatus: SlotStatus;
 
-  @OneToOne(() => User, (user) => user.profile)
+  @OneToOne(() => User, (user) => user.profile, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

@@ -18,7 +18,9 @@ export class Account extends CommonBaseEntity {
   @Column({ nullable: false, type: String })
   number: string;
 
-  @OneToOne(() => User, (user) => user.account)
+  @OneToOne(() => User, (user) => user.account, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

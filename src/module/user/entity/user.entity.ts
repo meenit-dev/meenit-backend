@@ -8,6 +8,7 @@ import { UserProfile } from './user.profile.entity';
 import { generateSecureRandomId } from '@common/util';
 import { Portfolio } from 'src/module/portfolio/entity/portfolio.entity';
 import { CreatorSetting } from './creator.setting.entity';
+import { Follow } from './follow.entity';
 
 @Entity({ name: 'user' })
 export class User extends CommonBaseEntity {
@@ -47,6 +48,15 @@ export class User extends CommonBaseEntity {
 
   @OneToOne(() => CreatorSetting, (creatorSetting) => creatorSetting.user)
   creatorSetting: CreatorSetting;
+
+  @OneToMany(() => Follow, (follow) => follow.followUser)
+  followers: Follow[];
+
+  @OneToMany(() => Follow, (follow) => follow.user)
+  following: Follow[];
+
+  followerCount?: number;
+  followingCount?: number;
 
   static of(createRequest: SignUpRequestDto): User {
     const user = new User();

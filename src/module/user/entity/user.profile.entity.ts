@@ -22,7 +22,9 @@ export class UserProfile extends CommonBaseEntity {
   })
   links?: string[];
 
-  @OneToOne(() => User, (user) => user.profile)
+  @OneToOne(() => User, (user) => user.profile, {
+    createForeignKeyConstraints: false,
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
