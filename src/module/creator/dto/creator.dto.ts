@@ -39,13 +39,20 @@ export class CreatorResponseDto extends UserResponseDto {
 
   constructor(user: User) {
     super(user);
-    this.portfolios = user.portfolios.map(
-      (portfolio) => new PortfolioResponseDto(portfolio),
-    );
+    this.portfolios = user.portfolios.map((portfolio) => {
+      portfolio.user = user;
+      return new PortfolioResponseDto(portfolio);
+    });
   }
 }
 
 export class GetCreatorsResponseDto extends PaginationResponseDto<CreatorResponseDto> {
+  @ApiProperty({
+    description: '리스트',
+    type: [CreatorResponseDto],
+  })
+  list: CreatorResponseDto[];
+
   constructor({ list, totalCount }: PaginationResponseDto<User>) {
     super();
     this.list = list.map((user) => new CreatorResponseDto(user));

@@ -18,34 +18,64 @@ export class PortfolioRepository extends CommonRepository<Portfolio> {
     super();
   }
 
-  async findOneWithTagAndResourceById(id: UUID) {
-    return this.repository.findOne({
-      where: { id },
-      relations: { tags: { tag: true }, resource: true },
-    });
+  async findOneWithTagAndResourceAndLikeAndUserById(
+    id: UUID,
+    requestUserId?: UUID,
+  ) {
+    const qb = this.repository
+      .createQueryBuilder('portfolio')
+      .where('portfolio.id = :id', { id })
+      .leftJoinAndSelect('portfolio.user', 'user')
+      .leftJoinAndSelect('portfolio.tags', 'pt')
+      .leftJoinAndSelect('pt.tag', 'tag')
+      .leftJoinAndSelect('portfolio.resource', 'resource');
+
+    if (requestUserId) {
+      qb.leftJoinAndSelect(
+        'portfolio.likes',
+        'pl',
+        'pl.userId = :requestUserId',
+        { requestUserId },
+      );
+    }
+    return qb.getOne();
   }
 
   async findAllPaginationByUserIdAndCategory(
-    userId: UUID,
+    userId: UUID | null,
     category: PortfolioCategory | null,
+    requestUserId: UUID | null,
     paginationOptions: PaginationDto,
   ) {
-    return this.findAllPagination({
-      where: { userId, ...(category ? { category } : {}) },
-      paginationOptions,
-      order: { createdAt: -1 },
-    });
-  }
+    const qb = this.repository
+      .createQueryBuilder('portfolio')
+      .where(userId ? 'portfolio.userId = :userId' : '1=1', {
+        userId,
+      })
+      .andWhere(category ? 'portfolio.category = :category' : '1=1', {
+        category,
+      });
 
-  async findAllPaginationCategory(
-    category: PortfolioCategory | null,
-    paginationOptions: PaginationDto,
-  ) {
-    return this.findAllPagination({
-      where: { ...(category ? { category } : {}) },
-      paginationOptions,
-      order: { createdAt: -1 },
-    });
+    qb.leftJoinAndSelect('portfolio.user', 'user')
+      .leftJoinAndSelect('portfolio.tags', 'pt')
+      .leftJoinAndSelect('pt.tag', 'tag')
+      .leftJoinAndSelect('portfolio.resource', 'resource');
+
+    if (requestUserId) {
+      qb.leftJoinAndSelect(
+        'portfolio.likes',
+        'pl',
+        'pl.userId = :requestUserId',
+        { requestUserId },
+      );
+    }
+
+    const skip = paginationOptions.limit * (paginationOptions.page - 1);
+    qb.skip(skip).take(paginationOptions.limit);
+    qb.orderBy('portfolio.createdAt', 'DESC');
+
+    const [list, totalCount] = await qb.getManyAndCount();
+    return { list, totalCount };
   }
 
   async increseViewCountById(id: UUID) {

@@ -6,6 +6,8 @@ import {
   GetPortfoliosQueryDto,
 } from '../dto/portfolio.dto';
 import { UserHandleParamDto } from '@common/dto/user.dto';
+import { ReqUser } from '@common/decorator';
+import { UserPayload } from 'src/module/auth/type/auth.type';
 
 @Controller({ path: 'users/:handle/portfolios', version: '1' })
 @ApiTags('User')
@@ -20,10 +22,12 @@ export class UesrPortfolioController {
   async getPortfoliosPaginationByUserId(
     @Param() param: UserHandleParamDto,
     @Query() query: GetPortfoliosQueryDto,
+    @ReqUser() user: UserPayload,
   ) {
     return new GetPortfoliosResponseDto(
       await this.portfolioService.getPortfoliosPaginationByHandle(
         param.handle,
+        user?.id,
         query,
       ),
     );

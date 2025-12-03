@@ -51,24 +51,33 @@ export class PortfolioService {
         PortfolioTag.of({ tagId: tag.id, portfolioId: portfolio.id }),
       ),
     );
-    return this.portfolioRepository.findOneWithTagAndResourceById(portfolio.id);
+    return this.portfolioRepository.findOneWithTagAndResourceAndLikeAndUserById(
+      portfolio.id,
+    );
   }
 
   async getPortfoliosPaginationByHandle(
     handle: string,
+    requestUserId: UUID | null,
     query: GetPortfoliosQueryDto,
   ) {
     const user = await this.userService.getUserByHandle(handle);
     return this.portfolioRepository.findAllPaginationByUserIdAndCategory(
       user.id,
       query.category,
+      requestUserId,
       query,
     );
   }
 
-  async getPortfoliosPagination(query: GetPortfoliosQueryDto) {
-    return this.portfolioRepository.findAllPaginationCategory(
+  async getPortfoliosPagination(
+    requestUserId: UUID | null,
+    query: GetPortfoliosQueryDto,
+  ) {
+    return this.portfolioRepository.findAllPaginationByUserIdAndCategory(
+      null,
       query.category,
+      requestUserId,
       query,
     );
   }
@@ -81,9 +90,12 @@ export class PortfolioService {
     return portfolio;
   }
 
-  async getPortfolioAndIncreseViewCountById(id: UUID) {
+  async getPortfolioAndIncreseViewCountById(id: UUID, requestUserId?: UUID) {
     const portfolio =
-      await this.portfolioRepository.findOneWithTagAndResourceById(id);
+      await this.portfolioRepository.findOneWithTagAndResourceAndLikeAndUserById(
+        id,
+        requestUserId,
+      );
     if (!portfolio) {
       throw new NotFoundError();
     }
@@ -112,13 +124,17 @@ export class PortfolioService {
         ),
       );
     }
-    return this.portfolioRepository.findOneWithTagAndResourceById(id);
+    return this.portfolioRepository.findOneWithTagAndResourceAndLikeAndUserById(
+      id,
+    );
   }
 
   @Transactional()
   async deletePortfolioByIdAndUserId(id: UUID, userId: UUID) {
     const portfolio =
-      await this.portfolioRepository.findOneWithTagAndResourceById(id);
+      await this.portfolioRepository.findOneWithTagAndResourceAndLikeAndUserById(
+        id,
+      );
     if (!portfolio) {
       return;
     }

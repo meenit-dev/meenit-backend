@@ -102,7 +102,6 @@ export class ResourceService {
       return;
     }
     const key = this.getKeyByProviderAndUrl(provider, url);
-    console.log(key, provider, url);
     if (!key) {
       throw new BadRequestError();
     }

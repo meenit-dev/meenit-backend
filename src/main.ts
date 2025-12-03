@@ -8,6 +8,7 @@ import { LoggingInterceptor } from '@common/interceptor/logging.interceptor';
 import { setSwaggerConfig } from './swagger.options';
 import { initializeTransactionalContext } from 'typeorm-transactional';
 import { I18nMiddleware } from 'nestjs-i18n';
+import { AuthOptionalUserGuard } from './module/auth/guard/auth.optional.user.guard';
 
 const { PORT } = process.env;
 
@@ -31,6 +32,8 @@ async function bootstrap() {
     .use(urlencoded({ extended: true, limit: '50mb' }))
     .useGlobalInterceptors(new LoggingInterceptor())
     .enableCors();
+
+  app.useGlobalGuards(new AuthOptionalUserGuard());
 
   setSwaggerConfig(app);
 

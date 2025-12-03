@@ -13,6 +13,7 @@ import { UUID } from '@common/type';
 import { User } from 'src/module/user/entity/user.entity';
 import { PortfolioTag } from './portfolio.tag.entity';
 import { Resource } from 'src/module/storage/entity/resource.entity';
+import { PortfolioLike } from './portfolio.like.entity';
 
 @Entity({ name: 'portfolio' })
 export class Portfolio extends CommonBaseEntity {
@@ -44,6 +45,9 @@ export class Portfolio extends CommonBaseEntity {
 
   @OneToMany(() => PortfolioTag, (portfolioTag) => portfolioTag.portfolio)
   tags: PortfolioTag[];
+
+  @OneToMany(() => PortfolioLike, (like) => like.portfolio)
+  likes: PortfolioLike[];
 
   @OneToOne(() => Resource, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'resource_id' })

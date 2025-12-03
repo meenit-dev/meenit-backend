@@ -51,21 +51,28 @@ export class PortfolioController {
   @ApiOkResponse({
     type: GetPortfoliosResponseDto,
   })
-  async getPortfoliosPaginationByUserId(@Query() query: GetPortfoliosQueryDto) {
+  async getPortfoliosPaginationByUserId(
+    @Query() query: GetPortfoliosQueryDto,
+    @ReqUser() user: UserPayload,
+  ) {
     return new GetPortfoliosResponseDto(
-      await this.portfolioService.getPortfoliosPagination(query),
+      await this.portfolioService.getPortfoliosPagination(user?.id, query),
     );
   }
 
   @Get(':portfolioId')
   @ApiOperation({ summary: 'Portfolio 상세 조회' })
   @ApiOkResponse({
-    type: GetPortfoliosResponseDto,
+    type: GetPortfolioResponseDto,
   })
-  async getPortfolio(@Param() param: PortfolioParamDto) {
+  async getPortfolio(
+    @Param() param: PortfolioParamDto,
+    @ReqUser() user: UserPayload,
+  ) {
     return new GetPortfolioResponseDto(
       await this.portfolioService.getPortfolioAndIncreseViewCountById(
         param.portfolioId,
+        user?.id,
       ),
     );
   }
@@ -75,7 +82,7 @@ export class PortfolioController {
   @Patch(':portfolioId')
   @ApiOperation({ summary: 'Portfolio 수정' })
   @ApiOkResponse({
-    type: GetPortfoliosResponseDto,
+    type: GetPortfolioResponseDto,
   })
   async updatePortfolio(
     @ReqUser() user: UserPayload,

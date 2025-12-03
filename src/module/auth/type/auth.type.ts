@@ -31,6 +31,7 @@ export enum SsoProvider {
 
 export enum AuthType {
   USER = 'user',
+  OPTIONAL_USER = 'optionalUser',
   ADMIN = 'admin',
   REFRESH = 'refresh',
   ADMIN_REFRESH = 'admin-refresh',

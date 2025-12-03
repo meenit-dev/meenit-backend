@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TagService } from 'src/module/tag/service/tag.service';
 import { UserService } from 'src/module/user/service/user.service';
 import { GetCreatorsQueryDto } from '../dto/creator.dto';
+import { UserPayload } from 'src/module/auth/type/auth.type';
 
 @Injectable()
 export class CreatorService {
@@ -10,10 +11,14 @@ export class CreatorService {
     private readonly tagService: TagService,
   ) {}
 
-  async getCreatorPagination(query: GetCreatorsQueryDto) {
+  async getCreatorPagination(query: GetCreatorsQueryDto, user?: UserPayload) {
     const tagIds = query.tags
       ? (await this.tagService.getTagsByNames(query.tags)).map((tag) => tag.id)
       : undefined;
-    return this.userService.getCreatorPagination({ ...query, tagIds });
+    return this.userService.getCreatorPagination({
+      ...query,
+      tagIds,
+      requestUserId: user?.id,
+    });
   }
 }

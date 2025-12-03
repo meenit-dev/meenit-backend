@@ -13,6 +13,7 @@ import { PaginationDto } from '@common/dto';
 import { PaginationResponseDto } from '@common/repository/repository.dto';
 import { ResourceDto } from '@common/dto/resource.dto';
 import { IsOptionalDefined } from '@common/decorator/dto.decorator';
+import { UserResponseDto } from 'src/module/user/dto/user.dto';
 
 export class PortfolioParamDto {
   @ApiProperty({
@@ -69,6 +70,18 @@ export class PortfolioResponseDto {
   likeCount: number;
 
   @ApiProperty({
+    description: '좋아요 여부',
+    example: true,
+  })
+  like: boolean;
+
+  @ApiProperty({
+    description: '유저 정보',
+    type: UserResponseDto,
+  })
+  user: UserResponseDto;
+
+  @ApiProperty({
     description: '생성 날짜',
     example: '2024-01-01T00:00:00.000Z',
   })
@@ -86,12 +99,20 @@ export class PortfolioResponseDto {
     this.thumbnailUrl = portfolio.thumbnailUrl;
     this.likeCount = portfolio.likeCount;
     this.viewCount = portfolio.viewCount;
+    this.like = !!portfolio.likes?.length;
+    this.user = new UserResponseDto(portfolio.user);
     this.createdAt = portfolio.createdAt;
     this.updatedAt = portfolio.updatedAt;
   }
 }
 
 export class GetPortfoliosResponseDto extends PaginationResponseDto<PortfolioResponseDto> {
+  @ApiProperty({
+    description: '리스트',
+    type: [PortfolioResponseDto],
+  })
+  list: PortfolioResponseDto[];
+
   constructor({ list, totalCount }: PaginationResponseDto<Portfolio>) {
     super();
     this.list = list.map((portfolio) => new PortfolioResponseDto(portfolio));
@@ -152,6 +173,18 @@ export class GetPortfolioResponseDto {
   tags: string[];
 
   @ApiProperty({
+    description: '좋아요 여부',
+    example: true,
+  })
+  like: boolean;
+
+  @ApiProperty({
+    description: '유저 정보',
+    type: UserResponseDto,
+  })
+  user: UserResponseDto;
+
+  @ApiProperty({
     description: '생성 날짜',
     example: '2024-01-01T00:00:00.000Z',
   })
@@ -172,6 +205,8 @@ export class GetPortfolioResponseDto {
     this.viewCount = portfolio.viewCount;
     this.likeCount = portfolio.likeCount;
     this.tags = portfolio.tags.map((tag) => tag.tag.name);
+    this.like = !!portfolio.likes?.length;
+    this.user = new UserResponseDto(portfolio.user);
     this.createdAt = portfolio.createdAt;
     this.updatedAt = portfolio.updatedAt;
   }

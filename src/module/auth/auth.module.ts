@@ -16,6 +16,7 @@ import { EmailVerificationRepository } from './repository/email.verification.ver
 import { EmailVerification } from './entity/email.verification.entity';
 import { SsoAccountRepository } from './repository/sso.account.repository';
 import { SsoAccount } from './entity/sso.account.entity';
+import { JwtOptionalUserStrategy } from './strategy/jwt.optional.user.strategy';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SsoAccount } from './entity/sso.account.entity';
   providers: [
     AuthService,
     JwtUserStrategy,
+    JwtOptionalUserStrategy,
     JwtRefreshStrategy,
     GoogleStrategy,
     XStrategy,

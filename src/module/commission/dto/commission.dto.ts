@@ -88,6 +88,12 @@ export class CommissionResponseDto {
 }
 
 export class GetCommissionsResponseDto extends PaginationResponseDto<CommissionResponseDto> {
+  @ApiProperty({
+    description: '리스트',
+    type: [CommissionResponseDto],
+  })
+  list: CommissionResponseDto[];
+
   constructor({ list, totalCount }: PaginationResponseDto<Commission>) {
     super();
     this.list = list.map(

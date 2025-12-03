@@ -8,6 +8,7 @@ import { UUID } from '@common/type';
 import { UserType } from '../type/user.type';
 import { FindCreatorsPagination } from 'src/module/user/dto/user.query.dto';
 import { Portfolio } from 'src/module/portfolio/entity/portfolio.entity';
+import { PortfolioLike } from 'src/module/portfolio/entity/portfolio.like.entity';
 
 @Injectable()
 export class UserRepository extends CommonRepository<User> {
@@ -89,6 +90,21 @@ export class UserRepository extends CommonRepository<User> {
       `portfolios.id IN (${portfolioSub.getQuery()})`,
     );
     qb.setParameters(portfolioSub.getParameters());
+
+    if (query.requestUserId) {
+      qb.leftJoinAndMapMany(
+        'portfolios.likes',
+        PortfolioLike,
+        'pl',
+        `
+          pl.portfolioId = portfolios.id
+          AND pl.userId = :requestUserId
+          AND pl.deletedAt IS NULL
+        `,
+        { requestUserId: query.requestUserId },
+      );
+    }
+
     qb.orderBy('portfolios.createdAt', 'DESC');
 
     const [list, totalCount] = await qb.getManyAndCount();
