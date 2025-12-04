@@ -29,10 +29,11 @@ export class UsersController {
   @ApiOkResponse({
     type: GetMyUserProfileResponseDto,
   })
-  async getUser(@Param() param: UserHandleParamDto) {
-    return new GetMyUserProfileResponseDto(
-      await this.userService.getUserWithProfileByHandle(param.handle),
-    );
+  async getUser(
+    @ReqUser() user: UserPayload,
+    @Param() param: UserHandleParamDto,
+  ) {
+    return this.userService.getUserWithProfileByHandle(param.handle, user?.id);
   }
 
   @Get(':handle/follow')
@@ -45,7 +46,9 @@ export class UsersController {
     @Param() param: UserHandleParamDto,
     @Query() query: GetFollowUserQueryDto,
   ) {
-    await this.userService.getFollowUserByHandle(param.handle, query);
+    return new GetFollowUserResponseDto(
+      await this.userService.getFollowUserByHandle(param.handle, query),
+    );
   }
 
   @Post(':handle/follow')

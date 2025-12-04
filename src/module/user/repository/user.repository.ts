@@ -124,13 +124,4 @@ export class UserRepository extends CommonRepository<User> {
       withDeleted: isDeleted,
     });
   }
-
-  async findFollowUsersById(
-    id: UUID
-    providerId: string,
-  ) {
-    return this.repository.findOne({
-      where: { [`${provider}Id`]: providerId },
-    });
-  }
 }

@@ -99,6 +99,12 @@ export class GetMyUserProfileResponseDto extends UserResponseDto {
   links: string[] | null;
 
   @ApiProperty({
+    description: '내가 팔로우한 여부',
+    example: true,
+  })
+  follow: boolean;
+
+  @ApiProperty({
     description: '나에게 팔로우 한 유저 수',
     example: 10,
   })
@@ -110,11 +116,12 @@ export class GetMyUserProfileResponseDto extends UserResponseDto {
   })
   followingCount: number;
 
-  constructor(user: User) {
+  constructor(user: User, follow: boolean) {
     super(user);
     this.introduction = user.profile.introduction;
     this.background = user.profile.background;
     this.links = user.profile.links;
+    this.follow = follow;
     this.followerCount = user.followerCount;
     this.followingCount = user.followingCount;
   }

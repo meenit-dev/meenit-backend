@@ -4,6 +4,7 @@ import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { User } from '../entity/user.entity';
 import {
   GetFollowUserQueryDto,
+  GetMyUserProfileResponseDto,
   PatchCreatorSettingBodyDto,
   PatchUserInfoBodyDto,
   PutUserAccountBodyDto,
@@ -104,9 +105,18 @@ export class UserService {
     return this.userRepository.findCreatorsTopPortfolios(query);
   }
 
-  async getUserWithProfileByHandle(handle: string) {
+  async getUserWithProfileByHandle(handle: string, requestUserId?: UUID) {
     const user = await this.getUserByHandle(handle);
-    return this.getUserWithProfileById(user.id);
+    const follow = requestUserId
+      ? !!(await this.followRepository.findOneByUserIdAndFollowUserId(
+          requestUserId,
+          user.id,
+        ))
+      : false;
+    return new GetMyUserProfileResponseDto(
+      await this.getUserWithProfileById(user.id),
+      follow,
+    );
   }
 
   async getUserByProviderAndProviderId(
@@ -204,8 +214,23 @@ export class UserService {
       followUser.id,
     );
   }
+
   async getFollowUserByHandle(handle: string, query: GetFollowUserQueryDto) {
     const user = await this.getUserByHandle(handle);
-    return this.userRepository.findOneByProviderAndProviderId;
+    if (query.isFollowing) {
+      const { list, totalCount } =
+        await this.followRepository.findFollowingWithUserPaginationByUserId(
+          user.id,
+          query,
+        );
+      return { list: list.map(({ followUser }) => followUser), totalCount };
+    } else {
+      const { list, totalCount } =
+        await this.followRepository.findFollowerWithUserPaginationByUserId(
+          user.id,
+          query,
+        );
+      return { list: list.map(({ user }) => user), totalCount };
+    }
   }
 }
