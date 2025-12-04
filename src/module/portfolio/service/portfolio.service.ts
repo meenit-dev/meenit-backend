@@ -1,12 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PortfolioRepository } from '../repository/portfolio.repository';
 import { UUID } from '@common/type';
-import {
-  BadRequestError,
-  DuplicatedError,
-  ForbiddenError,
-  NotFoundError,
-} from '@common/error';
+import { DuplicatedError, ForbiddenError, NotFoundError } from '@common/error';
 import { UserService } from 'src/module/user/service/user.service';
 import {
   GetPortfoliosQueryDto,
@@ -154,9 +149,6 @@ export class PortfolioService {
   @Transactional()
   async createPortfolioLike(portfolioId: UUID, userId: UUID) {
     const portfolio = await this.getPortfolioById(portfolioId);
-    if (portfolio.userId === userId) {
-      throw new BadRequestError();
-    }
     if (
       await this.portfolioLikeRepository.findOneByUserIdAndPortfolioId(
         userId,
