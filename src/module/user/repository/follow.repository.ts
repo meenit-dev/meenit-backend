@@ -21,17 +21,12 @@ export class FollowRepository extends CommonRepository<Follow> {
     return this.repository.softDelete({ userId, followUserId });
   }
 
-  async findOneByUserIdAndFollowUserId(userId: UUID, followUserId: UUID) {
-    return this.repository.findOneBy({ userId, followUserId });
-  }
-
   async findFollowerWithUserPaginationByUserId(
     userId: UUID,
     query: PaginationDto,
   ) {
     return this.findAllPagination({
       where: { followUserId: userId },
-      relations: { user: true },
       paginationOptions: query,
       order: {
         createdAt: -1,
@@ -45,7 +40,6 @@ export class FollowRepository extends CommonRepository<Follow> {
   ) {
     return this.findAllPagination({
       where: { userId },
-      relations: { followUser: true },
       paginationOptions: query,
       order: {
         createdAt: -1,

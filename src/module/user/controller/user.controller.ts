@@ -44,7 +44,6 @@ export class UserController {
   async getUserInfo(@ReqUser() user: UserPayload) {
     return new GetMyUserProfileResponseDto(
       await this.userService.getUserWithProfileById(user.id),
-      false,
     );
   }
 

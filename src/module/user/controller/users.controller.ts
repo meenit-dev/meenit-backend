@@ -26,28 +26,30 @@ export class UsersController {
 
   @Get(':handle')
   @ApiOperation({ summary: 'user 정보 확인' })
-  @ApiOkResponse({
-    type: GetMyUserProfileResponseDto,
-  })
+  @ApiOkResponse({ type: GetMyUserProfileResponseDto })
   async getUser(
     @ReqUser() user: UserPayload,
     @Param() param: UserHandleParamDto,
   ) {
-    return this.userService.getUserWithProfileByHandle(param.handle, user?.id);
+    return new GetMyUserProfileResponseDto(
+      await this.userService.getUserWithProfileByHandle(param.handle, user?.id),
+    );
   }
 
   @Get(':handle/follow')
-  @UseGuards(AuthUserGuard)
   @ApiOperation({ summary: '팔로우 유저 리스트 조회' })
-  @ApiOkResponse({
-    type: GetFollowUserResponseDto,
-  })
+  @ApiOkResponse({ type: GetFollowUserResponseDto })
   async getUserFollow(
     @Param() param: UserHandleParamDto,
     @Query() query: GetFollowUserQueryDto,
+    @ReqUser() user: UserPayload,
   ) {
     return new GetFollowUserResponseDto(
-      await this.userService.getFollowUserByHandle(param.handle, query),
+      await this.userService.getFollowUserByHandle(
+        param.handle,
+        query,
+        user?.id,
+      ),
     );
   }
 

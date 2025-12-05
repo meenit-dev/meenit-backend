@@ -55,6 +55,7 @@ export class User extends CommonBaseEntity {
   @OneToMany(() => Follow, (follow) => follow.user)
   following: Follow[];
 
+  follow?: number;
   followerCount?: number;
   followingCount?: number;
 

@@ -4,7 +4,6 @@ import { SignUpRequestDto } from '../../auth/dto/auth.dto';
 import { User } from '../entity/user.entity';
 import {
   GetFollowUserQueryDto,
-  GetMyUserProfileResponseDto,
   PatchCreatorSettingBodyDto,
   PatchUserInfoBodyDto,
   PutUserAccountBodyDto,
@@ -76,8 +75,11 @@ export class UserService {
     );
   }
 
-  async getUserWithProfileById(id: string) {
-    const user = await this.userRepository.findOneWithProfileById(id);
+  async getUserWithProfileById(id: string, requestUserId?: UUID) {
+    const user = await this.userRepository.findOneWithProfileById(
+      id,
+      requestUserId,
+    );
     if (!user) {
       throw new NotFoundError();
     }
@@ -107,16 +109,7 @@ export class UserService {
 
   async getUserWithProfileByHandle(handle: string, requestUserId?: UUID) {
     const user = await this.getUserByHandle(handle);
-    const follow = requestUserId
-      ? !!(await this.followRepository.findOneByUserIdAndFollowUserId(
-          requestUserId,
-          user.id,
-        ))
-      : false;
-    return new GetMyUserProfileResponseDto(
-      await this.getUserWithProfileById(user.id),
-      follow,
-    );
+    return this.getUserWithProfileById(user.id, requestUserId);
   }
 
   async getUserByProviderAndProviderId(
@@ -215,7 +208,11 @@ export class UserService {
     );
   }
 
-  async getFollowUserByHandle(handle: string, query: GetFollowUserQueryDto) {
+  async getFollowUserByHandle(
+    handle: string,
+    query: GetFollowUserQueryDto,
+    requestUserId?: UUID,
+  ) {
     const user = await this.getUserByHandle(handle);
     if (query.isFollowing) {
       const { list, totalCount } =
@@ -223,14 +220,34 @@ export class UserService {
           user.id,
           query,
         );
-      return { list: list.map(({ followUser }) => followUser), totalCount };
+      const users = list.length
+        ? await this.userRepository.findWithProfileByIds(
+            list.map(({ followUserId }) => followUserId),
+            requestUserId,
+          )
+        : [];
+      return {
+        list: list.map(({ followUserId }) =>
+          users.find(({ id }) => id === followUserId),
+        ),
+        totalCount,
+      };
     } else {
       const { list, totalCount } =
         await this.followRepository.findFollowerWithUserPaginationByUserId(
           user.id,
           query,
         );
-      return { list: list.map(({ user }) => user), totalCount };
+      const users = list.length
+        ? await this.userRepository.findWithProfileByIds(
+            list.map(({ userId }) => userId),
+            requestUserId,
+          )
+        : [];
+      return {
+        list: list.map(({ userId }) => users.find(({ id }) => id === userId)),
+        totalCount,
+      };
     }
   }
 }

@@ -116,12 +116,12 @@ export class GetMyUserProfileResponseDto extends UserResponseDto {
   })
   followingCount: number;
 
-  constructor(user: User, follow: boolean) {
+  constructor(user: User) {
     super(user);
     this.introduction = user.profile.introduction;
     this.background = user.profile.background;
     this.links = user.profile.links;
-    this.follow = follow;
+    this.follow = !!user.follow;
     this.followerCount = user.followerCount;
     this.followingCount = user.followingCount;
   }
@@ -321,16 +321,16 @@ export class GetFollowUserQueryDto extends PaginationDto {
   isFollowing: boolean;
 }
 
-export class GetFollowUserResponseDto extends PaginationResponseDto<UserResponseDto> {
+export class GetFollowUserResponseDto extends PaginationResponseDto<GetMyUserProfileResponseDto> {
   @ApiProperty({
     description: '리스트',
-    type: [UserResponseDto],
+    type: [GetMyUserProfileResponseDto],
   })
-  list: UserResponseDto[];
+  list: GetMyUserProfileResponseDto[];
 
   constructor({ list, totalCount }: PaginationResponseDto<User>) {
     super();
-    this.list = list.map((user) => new UserResponseDto(user));
+    this.list = list.map((user) => new GetMyUserProfileResponseDto(user));
     this.totalCount = totalCount;
   }
 }

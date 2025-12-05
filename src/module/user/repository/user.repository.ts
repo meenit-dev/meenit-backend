@@ -20,14 +20,44 @@ export class UserRepository extends CommonRepository<User> {
     super();
   }
 
-  async findOneWithProfileById(id: UUID) {
-    return this.repository
+  async findOneWithProfileById(id: UUID, requestUserId?: UUID) {
+    const qb = this.repository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.profile', 'profile')
       .loadRelationCountAndMap('user.followerCount', 'user.followers')
       .loadRelationCountAndMap('user.followingCount', 'user.following')
-      .where('user.id = :id', { id })
-      .getOne();
+      .where('user.id = :id', { id });
+
+    if (requestUserId) {
+      qb.loadRelationCountAndMap(
+        'user.follow',
+        'user.followers',
+        'follower',
+        (qb) =>
+          qb.andWhere('follower.userId = :requestUserId', { requestUserId }),
+      );
+    }
+    return qb.getOne();
+  }
+
+  async findWithProfileByIds(ids: UUID[], requestUserId?: UUID) {
+    const qb = this.repository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.profile', 'profile')
+      .loadRelationCountAndMap('user.followerCount', 'user.followers')
+      .loadRelationCountAndMap('user.followingCount', 'user.following')
+      .where('user.id IN (:...ids)', { ids });
+
+    if (requestUserId) {
+      qb.loadRelationCountAndMap(
+        'user.follow',
+        'user.followers',
+        'follower',
+        (qb) =>
+          qb.andWhere('follower.userId = :requestUserId', { requestUserId }),
+      );
+    }
+    return qb.getMany();
   }
 
   async findOneWithCreatorSettingById(id: UUID) {
