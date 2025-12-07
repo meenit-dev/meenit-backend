@@ -7,4 +7,5 @@ export enum StorageType {
   PROFILE_BACKGROUPD = 'profileBackgroup',
   COMMISSION = 'commission',
   PORTFOLIO = 'portfolio',
+  REPORT = 'report',
 }

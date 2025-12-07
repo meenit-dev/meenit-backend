@@ -10,13 +10,13 @@ export class DiscordService {
     this.webhookUrl = this.config.get('DISCORD_WEBHOOK');
   }
 
-  async sendReport() {
+  async sendReport(title: string, content: string) {
     const payload = {
-      content: 'Discord Webhook 메시지입니다.',
+      content: '[신고]',
       embeds: [
         {
-          title: '임베드 테스트',
-          description: '임베드 내용입니다.',
+          title: title,
+          description: content,
         },
       ],
     };

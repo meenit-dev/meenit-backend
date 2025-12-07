@@ -38,12 +38,17 @@ export class StorageService {
       case StorageType.PORTFOLIO:
         return {
           path: `users/${user.id}/portfolio/${v7()}.${extention}`,
-          maxSizeBytes: 31457280, // 30MB
+          maxSizeBytes: 524288000, // 500MB
         };
       case StorageType.PROFILE_BACKGROUPD:
         return {
           path: `users/${user.id}/profileBackground/${v7()}.${extention}`,
           maxSizeBytes: 5242880, // 5MB
+        };
+      case StorageType.REPORT:
+        return {
+          path: `users/${user.id}/report/${v7()}.${extention}`,
+          maxSizeBytes: 52428800, // 50MB
         };
     }
   }
