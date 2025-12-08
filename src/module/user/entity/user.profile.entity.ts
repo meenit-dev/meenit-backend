@@ -2,6 +2,7 @@ import { CommonBaseEntity } from 'src/common/entity/common-base.entity';
 import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
 import { User } from './user.entity';
 import { UUID } from '@common/type';
+import { UserProfileLink } from '../type/user.type';
 
 @Entity({ name: 'user_profile' })
 export class UserProfile extends CommonBaseEntity {
@@ -16,11 +17,10 @@ export class UserProfile extends CommonBaseEntity {
   background?: string;
 
   @Column({
-    type: 'text',
-    array: true,
+    type: 'jsonb',
     nullable: true,
   })
-  links?: string[];
+  links?: UserProfileLink[];
 
   @OneToOne(() => User, (user) => user.profile, {
     createForeignKeyConstraints: false,
@@ -37,11 +37,13 @@ export class UserProfile extends CommonBaseEntity {
   update(update: {
     introduction?: string;
     background?: string;
-    links?: string[];
+    links?: UserProfileLink[];
   }): UserProfile {
     this.introduction = update.introduction || this.introduction;
     this.background = update.background || this.background;
-    this.links = update.links || this.links;
+    this.links = update.links?.length
+      ? update.links.map(({ name, url }) => ({ name, url }))
+      : this.links;
     return this;
   }
 }

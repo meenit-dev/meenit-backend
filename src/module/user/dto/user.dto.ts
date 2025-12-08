@@ -76,6 +76,24 @@ export class UserResponseDto {
   }
 }
 
+export class UserProfileLinkDto {
+  @ApiProperty({
+    description: '링크 소개 짧은 글',
+    example: '링크 소개 짧은 글',
+  })
+  @IsString()
+  @MaxLength(10)
+  name: string;
+
+  @ApiProperty({
+    description: '프로필에 등록할 소개 link',
+    example: 'https://youtube.com',
+  })
+  @IsString()
+  @MaxLength(200)
+  url: string;
+}
+
 export class GetMyUserProfileResponseDto extends UserResponseDto {
   @ApiProperty({
     description: '자기 소개',
@@ -93,10 +111,10 @@ export class GetMyUserProfileResponseDto extends UserResponseDto {
 
   @ApiProperty({
     description: '프로필에 등록한 소개 link',
-    example: ['https://youtube.com'],
+    type: [UserProfileLinkDto],
     nullable: true,
   })
-  links: string[] | null;
+  links: UserProfileLinkDto[] | null;
 
   @ApiProperty({
     description: '내가 팔로우한 여부',
@@ -195,12 +213,13 @@ export class PatchUserInfoBodyDto {
 
   @ApiProperty({
     description: '프로필에 등록할 소개 link',
-    example: ['https://youtube.com'],
+    type: [UserProfileLinkDto],
     required: false,
   })
-  @IsString({ each: true })
+  @Type(() => UserProfileLinkDto)
+  @ValidateNested({ each: true })
   @IsOptional()
-  links?: string[];
+  links?: UserProfileLinkDto[];
 }
 
 export class PutUserPhoneBodyDto {
