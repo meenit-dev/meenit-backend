@@ -105,6 +105,7 @@ export class UserRepository extends CommonRepository<User> {
         .andWhere('pt.tagId IN (:...tagIds)', { tagIds: query.tagIds });
     }
 
+    qb.andWhere(`EXISTS (${portfolioSub.getQuery()})`);
     qb.leftJoinAndMapMany(
       'user.portfolios',
       Portfolio,
