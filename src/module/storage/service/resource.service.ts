@@ -4,7 +4,7 @@ import { ResourceRepository } from '../repository/storage.repository';
 import { Resource } from '../entity/resource.entity';
 import { StorageService } from './storage.service';
 import { ResourceProvider } from '../type/resource.type';
-import { BadRequestError } from '@common/error';
+import { BadRequestError, NotFoundError } from '@common/error';
 import { UserPayload } from 'src/module/auth/type/auth.type';
 import { PutPreSignedUrlBodyDto } from '../dto/storage.dto';
 import { UUID } from '@common/type';
@@ -44,7 +44,7 @@ export class ResourceService {
       extention,
       contentLength,
     );
-    await this.upsertResource(user.id, type, ticket.publicUrl, {
+    await this.uploadedOrCreateOtherResource(user.id, type, ticket.publicUrl, {
       contentType: mimeType,
       size: contentLength,
     });
@@ -66,13 +66,26 @@ export class ResourceService {
     );
   }
 
+  isYoutubeUrl(urlStr: string): boolean {
+    try {
+      const url = new URL(urlStr);
+      const host = url.hostname.toLowerCase();
+
+      return [
+        'youtube.com',
+        'www.youtube.com',
+        'm.youtube.com',
+        'youtu.be',
+      ].includes(host);
+    } catch {
+      return false;
+    }
+  }
+
   getProviderByUrl(url: string) {
     if (url.startsWith(this.MEENIT_RESOURCE_BASE_URL)) {
       return ResourceProvider.MEENIT;
-    } else if (
-      url.startsWith('https://youtube.com') ||
-      url.startsWith('https://youtu.be')
-    ) {
+    } else if (this.isYoutubeUrl(url)) {
       return ResourceProvider.YOUTUBE;
     }
   }
@@ -88,14 +101,14 @@ export class ResourceService {
     }
   }
 
-  async upsertResource(
+  async uploadedOrCreateOtherResource(
     userId: UUID,
     type: StorageType,
     url: string,
     metadata: {
       contentType: string;
       size: number;
-    } = { contentType: 'video/*', size: 0 },
+    } = { contentType: ResourceProvider.YOUTUBE, size: 0 },
   ) {
     const provider = this.getProviderByUrl(url);
     if (!provider) {
@@ -110,6 +123,11 @@ export class ResourceService {
       key,
     );
     if (resource) {
+      if (await this.storageService.getHeadObject(resource.key)) {
+        await this.resourceRepository.save(resource.toUploaded());
+      } else {
+        throw new NotFoundError();
+      }
       return resource;
     }
     return this.resourceRepository.save(

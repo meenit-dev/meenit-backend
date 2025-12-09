@@ -33,7 +33,7 @@ export class PortfolioService {
   async createPortfolio(userId: UUID, body: PostPortfoliosBodyDto) {
     const tags = await this.tagService.getTagsByNames(body.tags);
     await this.userService.getUserById(userId);
-    const resource = await this.resourceService.upsertResource(
+    const resource = await this.resourceService.uploadedOrCreateOtherResource(
       userId,
       StorageType.PORTFOLIO,
       body.url,

@@ -48,7 +48,7 @@ export class ReportService {
     if (createRequest.resources) {
       const resources = await Promise.all(
         createRequest.resources.map((url) =>
-          this.resourceService.upsertResource(
+          this.resourceService.uploadedOrCreateOtherResource(
             reporterId,
             StorageType.REPORT,
             url,
