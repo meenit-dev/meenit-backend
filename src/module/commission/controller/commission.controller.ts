@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiSecurity,
@@ -36,7 +37,9 @@ export class CommissionController {
   @UseGuards(AuthUserGuard)
   @ApiSecurity(AuthType.USER)
   @Post()
-  @ApiOperation({ summary: 'Commission 생성' })
+  @ApiCreatedResponse({
+    type: GetCommissionResponseDto,
+  })
   async createCommission(
     @ReqUser() user: UserPayload,
     @Body() body: PostCommissionBodyDto,
@@ -62,7 +65,7 @@ export class CommissionController {
   @Get(':commissionId')
   @ApiOperation({ summary: 'Commission 상세 조회' })
   @ApiOkResponse({
-    type: GetCommissionsResponseDto,
+    type: GetCommissionResponseDto,
   })
   async getCommission(@Param() param: CommissionParamDto) {
     return new GetCommissionResponseDto(
@@ -77,7 +80,7 @@ export class CommissionController {
   @Patch(':commissionId')
   @ApiOperation({ summary: 'Commission 수정' })
   @ApiOkResponse({
-    type: GetCommissionsResponseDto,
+    type: GetCommissionResponseDto,
   })
   async updateCommission(
     @ReqUser() user: UserPayload,

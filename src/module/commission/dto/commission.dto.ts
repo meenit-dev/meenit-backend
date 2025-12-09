@@ -2,17 +2,24 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Commission } from '../entity/commission.entity';
 import {
   ArrayMaxSize,
+  IsBoolean,
   IsEnum,
   IsOptional,
   IsString,
   IsUUID,
+  MaxLength,
+  ValidateNested,
 } from 'class-validator';
 import { UUID } from '@common/type';
-import { CommissionCategory } from '../type/commission.type';
+import {
+  CommissionCategory,
+  CommissionOptionType,
+} from '../type/commission.type';
 import { PaginationDto } from '@common/dto';
 import { PaginationResponseDto } from '@common/repository/repository.dto';
 import { UserResponseDto } from 'src/module/user/dto/user.dto';
 import { IsOptionalDefined } from '@common/decorator/dto.decorator';
+import { Type } from 'class-transformer';
 
 export class CommissionParamDto {
   @ApiProperty({
@@ -21,6 +28,59 @@ export class CommissionParamDto {
   })
   @IsUUID()
   commissionId?: UUID;
+}
+
+export class CommissionOptionChoiceDto {
+  @ApiProperty({
+    example: '옵션 선택지 이름. 최대 100자',
+    description: '옵션 선택지 이름. 최대 100자',
+  })
+  @IsString()
+  @MaxLength(100)
+  label: string;
+}
+
+export class CommissionOptionDto {
+  @ApiProperty({
+    example: '옵션 이름. 최대 50자.',
+    description: '옵션 이름. 최대 50자',
+  })
+  @IsString()
+  @MaxLength(50)
+  title: string;
+
+  @ApiProperty({
+    example: '옵션 설명. 최대 100자',
+    description: '옵션 설명. 최대 100자',
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  description?: string;
+
+  @ApiProperty({
+    example: true,
+    description: '필수 옵션 여부',
+  })
+  @IsBoolean()
+  required: boolean;
+
+  @ApiProperty({
+    enum: CommissionOptionType,
+    example: CommissionOptionType.RADIO,
+    description: '옵션 타입',
+  })
+  @IsEnum(CommissionOptionType)
+  type: CommissionOptionType;
+
+  @ApiProperty({
+    type: [CommissionOptionChoiceDto],
+    description: '옵션 선택지 리스트. 최대 10개. text 제외하곤 필수',
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CommissionOptionChoiceDto)
+  @ArrayMaxSize(10)
+  choices?: CommissionOptionChoiceDto[];
 }
 
 export class GetCommissionsQueryDto extends PaginationDto {
@@ -179,6 +239,12 @@ export class GetCommissionResponseDto {
   tags: string[];
 
   @ApiProperty({
+    type: [CommissionOptionDto],
+    description: '커미션 옵션 목록',
+  })
+  options: CommissionOptionDto[];
+
+  @ApiProperty({
     description: '생성 날짜',
     example: '2024-01-01T00:00:00.000Z',
   })
@@ -200,6 +266,13 @@ export class GetCommissionResponseDto {
     this.thumbnailUrl = commission.thumbnailUrl;
     this.user = new UserResponseDto(commission.user);
     this.tags = commission.tags.map((tag) => tag.tag.name);
+    this.options = commission.options?.map((option) => ({
+      title: option.title,
+      description: option.description,
+      required: option.required,
+      type: option.type,
+      choices: option.choices.map(({ label }) => ({ label })),
+    }));
     this.createdAt = commission.createdAt;
     this.updatedAt = commission.updatedAt;
   }
@@ -261,6 +334,17 @@ export class PostCommissionBodyDto {
   @IsString({ each: true })
   @ArrayMaxSize(5)
   tags: string[];
+
+  @ApiProperty({
+    type: [CommissionOptionDto],
+    description: '커미션 옵션 목록. 최대 20개',
+    required: false,
+  })
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => CommissionOptionDto)
+  @ArrayMaxSize(20)
+  options?: CommissionOptionDto[];
 }
 
 export class PatchCommissionBodyDto {
@@ -329,4 +413,15 @@ export class PatchCommissionBodyDto {
   @ArrayMaxSize(5)
   @IsOptionalDefined()
   tags?: string[];
+
+  @ApiProperty({
+    type: [CommissionOptionDto],
+    description: '커미션 옵션 목록. 최대 20개',
+    required: false,
+  })
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => CommissionOptionDto)
+  @ArrayMaxSize(20)
+  options?: CommissionOptionDto[];
 }

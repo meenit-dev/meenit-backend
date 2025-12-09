@@ -11,6 +11,7 @@ import { UUID } from '@common/type';
 import { User } from 'src/module/user/entity/user.entity';
 import { CommissionTag } from './commission.tag.entity';
 import { CommissionCategory } from '../type/commission.type';
+import { CommissionOption } from './commission.option.entity';
 
 @Entity({ name: 'commission' })
 export class Commission extends CommonBaseEntity {
@@ -41,8 +42,10 @@ export class Commission extends CommonBaseEntity {
   user: User;
 
   @OneToMany(() => CommissionTag, (commissionTag) => commissionTag.commission)
-  @JoinColumn({ name: 'user_id' })
   tags: CommissionTag[];
+
+  @OneToMany(() => CommissionOption, (option) => option.commission)
+  options: CommissionOption[];
 
   static of(createRequest: {
     userId: UUID;

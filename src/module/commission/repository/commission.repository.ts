@@ -21,7 +21,11 @@ export class CommissionRepository extends CommonRepository<Commission> {
   async findOneWithTagAndUserById(id: UUID) {
     return this.repository.findOne({
       where: { id },
-      relations: { tags: { tag: true }, user: true },
+      relations: {
+        tags: { tag: true },
+        user: true,
+        options: { choices: true },
+      },
     });
   }
 

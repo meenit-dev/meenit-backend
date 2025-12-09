@@ -12,3 +12,9 @@ export enum SlotStatus {
   CLOST = 'close',
   UNSET = 'unset',
 }
+
+export enum CommissionOptionType {
+  RADIO = 'radio',
+  CHECKBOX = 'checkBox',
+  TEXT = 'text',
+}

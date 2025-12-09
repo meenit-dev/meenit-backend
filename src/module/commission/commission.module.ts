@@ -13,16 +13,28 @@ import { SlotRepository } from './repository/slot.repository';
 import { Slot } from './entity/slot.entity';
 import { SlotService } from './service/slot.service';
 import { UserSlotController } from './controller/user.slot.controller';
+import { CommissionOption } from './entity/commission.option.entity';
+import { CommissionOptionChoice } from './entity/commission.option.choice.entity';
+import { CommissionOptionRepository } from './repository/commission.option.repository';
+import { CommissionOptionChoiceRepository } from './repository/commission.option.choice.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Commission, CommissionTag, Slot]),
+    TypeOrmModule.forFeature([
+      Commission,
+      CommissionOption,
+      CommissionOptionChoice,
+      CommissionTag,
+      Slot,
+    ]),
     UserModule,
     TagModule,
   ],
   providers: [
     CommissionService,
     CommissionRepository,
+    CommissionOptionRepository,
+    CommissionOptionChoiceRepository,
     CommissionTagRepository,
     SlotRepository,
     SlotService,
