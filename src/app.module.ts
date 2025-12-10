@@ -18,6 +18,7 @@ import { CommissionModule } from './module/commission/commission.module';
 import { CreatorModule } from './module/creator/creator.module';
 import { UtilModule } from './module/util/util.module';
 import { ReportModule } from './module/report/report.module';
+import { NotificationModule } from './module/notification/notification.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ReportModule } from './module/report/report.module';
     CreatorModule,
     UtilModule,
     ReportModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_FILTER, useClass: CustomExceptionFilter }],

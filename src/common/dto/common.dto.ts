@@ -1,13 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  IsDate,
-  IsNotEmpty,
-  IsNumber,
-  IsUUID,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsDate, IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
 
 export class PaginationDto {
   @ApiProperty({
@@ -64,19 +57,6 @@ export class DurationPaginationDto extends PaginationDto {
   @IsDate()
   @Type(() => Date)
   endAt: Date;
-}
-
-export class GroupParamDto {
-  @ApiProperty({
-    description: 'group 아이디',
-    example: 'groupId',
-  })
-  @IsUUID()
-  groupId: string;
-
-  constructor(groupId: string) {
-    this.groupId = groupId;
-  }
 }
 
 export class PositionXYDto {
