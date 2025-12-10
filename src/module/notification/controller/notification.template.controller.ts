@@ -5,9 +5,10 @@ import {
   PostNotificationTemplateBodyDto,
   PutNotificationTemplateBodyDto,
 } from '../dto/notification.template.dto';
+import { SwaggerApiTag } from '@common/type';
 
 @Controller({ path: 'notifications', version: '1' })
-@ApiTags('Notification Template')
+@ApiTags(SwaggerApiTag.BACK_OFFICE, 'Notification Template')
 export class NotificationTemplateController {
   constructor(private readonly notificationService: NotificationService) {}
 
