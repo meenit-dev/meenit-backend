@@ -12,6 +12,7 @@ import { User } from 'src/module/user/entity/user.entity';
 import { CommissionTag } from './commission.tag.entity';
 import { CommissionCategory } from '../type/commission.type';
 import { CommissionOption } from './commission.option.entity';
+import { CommissionThumbnail } from './commission.thumbnail.entity';
 
 @Entity({ name: 'commission' })
 export class Commission extends CommonBaseEntity {
@@ -31,12 +32,6 @@ export class Commission extends CommonBaseEntity {
   @Column({ nullable: false, type: String })
   contents: string;
 
-  @Column({ nullable: true, type: String })
-  url?: string;
-
-  @Column({ name: 'thumbnail_url', nullable: true, type: String })
-  thumbnailUrl?: string;
-
   @ManyToOne(() => User, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
@@ -47,14 +42,15 @@ export class Commission extends CommonBaseEntity {
   @OneToMany(() => CommissionOption, (option) => option.commission)
   options: CommissionOption[];
 
+  @OneToMany(() => CommissionThumbnail, (option) => option.commission)
+  thumbnails: CommissionThumbnail[];
+
   static of(createRequest: {
     userId: UUID;
     category: CommissionCategory;
     title: string;
     description: string;
     contents: string;
-    url?: string;
-    thumbnailUrl?: string;
   }) {
     const commission = new Commission();
     commission.userId = createRequest.userId;
@@ -62,8 +58,6 @@ export class Commission extends CommonBaseEntity {
     commission.title = createRequest.title;
     commission.description = createRequest.description;
     commission.contents = createRequest.contents;
-    commission.url = createRequest.url;
-    commission.thumbnailUrl = createRequest.thumbnailUrl;
     return commission;
   }
 
@@ -78,8 +72,6 @@ export class Commission extends CommonBaseEntity {
     this.category = updateRequest.category || this.category;
     this.title = updateRequest.title || this.title;
     this.description = updateRequest.description || this.description;
-    this.url = updateRequest.url || this.url;
-    this.thumbnailUrl = updateRequest.thumbnailUrl || this.thumbnailUrl;
     return this;
   }
 }

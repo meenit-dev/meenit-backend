@@ -52,4 +52,13 @@ export class Resource extends CommonBaseEntity {
     this.uploaded = true;
     return this;
   }
+
+  makeUrl() {
+    switch (this.provider) {
+      case ResourceProvider.YOUTUBE:
+        return `https://youtu.be/${this.key}`;
+      case ResourceProvider.MEENIT:
+        return `${process.env.R2_RESOURCE_URL}/${this.key}`;
+    }
+  }
 }

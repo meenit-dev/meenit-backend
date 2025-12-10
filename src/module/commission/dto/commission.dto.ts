@@ -116,11 +116,11 @@ export class CommissionResponseDto {
   title: string;
 
   @ApiProperty({
-    description: 'Commission 썸네일 이미지 경로',
-    example: 'https://meenit.com/image.jpg',
+    description: 'Commission 이미지 경로 리스트. 최대 5개',
+    example: ['https://meenit.com/image.jpg'],
     required: false,
   })
-  thumbnailUrl?: string;
+  thumbnails?: string[];
 
   @ApiProperty({
     description: '유저 정보',
@@ -161,7 +161,7 @@ export class GetCommissionsResponseDto extends PaginationResponseDto<CommissionR
         id,
         category,
         title,
-        thumbnailUrl,
+        thumbnails,
         createdAt,
         updatedAt,
         user,
@@ -170,7 +170,9 @@ export class GetCommissionsResponseDto extends PaginationResponseDto<CommissionR
         id,
         category,
         title,
-        thumbnailUrl,
+        thumbnails: thumbnails?.map((thumbnail) =>
+          thumbnail.resource.makeUrl(),
+        ),
         createdAt,
         updatedAt,
         user: new UserResponseDto(user),
@@ -214,17 +216,11 @@ export class GetCommissionResponseDto {
   contents: string;
 
   @ApiProperty({
-    description: 'Commission 원본 파일 경로',
-    example: 'https://meenit.com/image.jpg',
-  })
-  url: string;
-
-  @ApiProperty({
-    description: 'Commission 썸네일 이미지 경로',
-    example: 'https://meenit.com/image.jpg',
+    description: 'Commission 이미지 경로 리스트. 최대 5개',
+    example: ['https://meenit.com/image.jpg'],
     required: false,
   })
-  thumbnailUrl?: string;
+  thumbnails?: string[];
 
   @ApiProperty({
     description: '유저 정보',
@@ -262,8 +258,9 @@ export class GetCommissionResponseDto {
     this.title = commission.title;
     this.description = commission.description;
     this.contents = commission.contents;
-    this.url = commission.url;
-    this.thumbnailUrl = commission.thumbnailUrl;
+    this.thumbnails = commission.thumbnails?.map((thumbnail) =>
+      thumbnail.resource.makeUrl(),
+    );
     this.user = new UserResponseDto(commission.user);
     this.tags = commission.tags.map((tag) => tag.tag.name);
     this.options = commission.options?.map((option) => ({
@@ -309,22 +306,14 @@ export class PostCommissionBodyDto {
   contents: string;
 
   @ApiProperty({
-    description: 'Commission 이미지 경로',
-    example: 'https://meenit.com/image.jpg',
+    description: 'Commission 이미지 경로 리스트. 최대 5개',
+    example: ['https://meenit.com/image.jpg'],
     required: false,
   })
-  @IsString()
+  @IsString({ each: true })
+  @ArrayMaxSize(5)
   @IsOptional()
-  url?: string;
-
-  @ApiProperty({
-    description: 'Commission 썸네일 이미지 경로',
-    example: 'https://meenit.com/image.jpg',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  thumbnailUrl?: string;
+  thumbnails?: string[];
 
   @ApiProperty({
     description: 'Tag 명',
@@ -395,13 +384,14 @@ export class PatchCommissionBodyDto {
   url?: string;
 
   @ApiProperty({
-    description: 'Commission 썸네일 이미지 경로',
-    example: 'https://meenit.com/image.jpg',
+    description: 'Commission 이미지 경로 리스트. 최대 5개',
+    example: ['https://meenit.com/image.jpg'],
     required: false,
   })
-  @IsString()
+  @IsString({ each: true })
+  @ArrayMaxSize(5)
   @IsOptional()
-  thumbnailUrl?: string;
+  thumbnails?: string[];
 
   @ApiProperty({
     description: 'Tag 명',

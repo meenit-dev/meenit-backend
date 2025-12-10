@@ -17,6 +17,9 @@ import { CommissionOption } from './entity/commission.option.entity';
 import { CommissionOptionChoice } from './entity/commission.option.choice.entity';
 import { CommissionOptionRepository } from './repository/commission.option.repository';
 import { CommissionOptionChoiceRepository } from './repository/commission.option.choice.repository';
+import { CommissionThumbnailRepository } from './repository/commission.thumbnail.repository';
+import { CommissionThumbnail } from './entity/commission.thumbnail.entity';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
@@ -24,17 +27,20 @@ import { CommissionOptionChoiceRepository } from './repository/commission.option
       Commission,
       CommissionOption,
       CommissionOptionChoice,
+      CommissionThumbnail,
       CommissionTag,
       Slot,
     ]),
     UserModule,
     TagModule,
+    StorageModule,
   ],
   providers: [
     CommissionService,
     CommissionRepository,
     CommissionOptionRepository,
     CommissionOptionChoiceRepository,
+    CommissionThumbnailRepository,
     CommissionTagRepository,
     SlotRepository,
     SlotService,

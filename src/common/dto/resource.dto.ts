@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Resource } from 'src/module/storage/entity/resource.entity';
-import { ResourceProvider } from 'src/module/storage/type/resource.type';
 
 export class ResourceDto {
   @ApiProperty({
@@ -16,16 +15,7 @@ export class ResourceDto {
   contentType: string;
 
   constructor(resource: Resource) {
-    this.url = this.makeUrl(resource);
+    this.url = resource.makeUrl();
     this.contentType = resource.contentType;
-  }
-
-  makeUrl(resource: Resource) {
-    switch (resource.provider) {
-      case ResourceProvider.YOUTUBE:
-        return `https://youtu.be/${resource.key}`;
-      case ResourceProvider.MEENIT:
-        return `${process.env.R2_RESOURCE_URL}/${resource.key}`;
-    }
   }
 }

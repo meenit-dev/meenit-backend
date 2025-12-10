@@ -25,6 +25,7 @@ export class CommissionRepository extends CommonRepository<Commission> {
         tags: { tag: true },
         user: true,
         options: { choices: true },
+        thumbnails: { resource: true },
       },
     });
   }
@@ -37,7 +38,11 @@ export class CommissionRepository extends CommonRepository<Commission> {
       where: { ...(category ? { category } : {}) },
       paginationOptions,
       order: { createdAt: -1 },
-      relations: { tags: { tag: true }, user: true },
+      relations: {
+        tags: { tag: true },
+        user: true,
+        thumbnails: { resource: true },
+      },
     });
   }
 
@@ -50,7 +55,11 @@ export class CommissionRepository extends CommonRepository<Commission> {
       where: { userId, ...(category ? { category } : {}) },
       paginationOptions,
       order: { createdAt: -1 },
-      relations: { tags: { tag: true }, user: true },
+      relations: {
+        tags: { tag: true },
+        user: true,
+        thumbnails: { resource: true },
+      },
     });
   }
 }

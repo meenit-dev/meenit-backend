@@ -19,15 +19,21 @@ import { CommissionOption } from '../entity/commission.option.entity';
 import { CommissionOptionChoice } from '../entity/commission.option.choice.entity';
 import { CommissionOptionType } from '../type/commission.type';
 import { UserType } from 'src/module/user/type/user.type';
+import { CommissionThumbnailRepository } from '../repository/commission.thumbnail.repository';
+import { CommissionThumbnail } from '../entity/commission.thumbnail.entity';
+import { ResourceService } from 'src/module/storage/service/resource.service';
+import { StorageType } from 'src/module/storage/type/storage.type';
 
 @Injectable()
 export class CommissionService {
   constructor(
     private readonly tagService: TagService,
     private readonly commissionRepository: CommissionRepository,
+    private readonly commissionThumbnailRepository: CommissionThumbnailRepository,
     private readonly commissionOptionRepository: CommissionOptionRepository,
     private readonly commissionOptionChoiceRepository: CommissionOptionChoiceRepository,
     private readonly commissionTagRepository: CommissionTagRepository,
+    private readonly resourceService: ResourceService,
     private readonly userService: UserService,
   ) {}
 
@@ -46,6 +52,25 @@ export class CommissionService {
         CommissionTag.of({ tagId: tag.id, commissionId: commission.id }),
       ),
     );
+    if (createRequest.thumbnails?.length) {
+      await this.commissionThumbnailRepository.saveMany(
+        await Promise.all(
+          createRequest.thumbnails.map(async (thumbnail, i) =>
+            CommissionThumbnail.of({
+              resourceId: (
+                await this.resourceService.uploadedOrCreateOtherResource(
+                  userId,
+                  StorageType.THUMBNAIL,
+                  thumbnail,
+                )
+              ).id,
+              commissionId: commission.id,
+              order: i,
+            }),
+          ),
+        ),
+      );
+    }
     for (const i in createRequest.options ?? []) {
       const option = createRequest.options[i];
       const commissionOption = await this.commissionOptionRepository.save(
@@ -125,6 +150,28 @@ export class CommissionService {
       await this.commissionTagRepository.saveMany(
         tags.map((tag) =>
           CommissionTag.of({ tagId: tag.id, commissionId: commission.id }),
+        ),
+      );
+    }
+    if (updateRequest.thumbnails?.length) {
+      await this.commissionThumbnailRepository.deleteManyByCommissionId(
+        commission.id,
+      );
+      await this.commissionThumbnailRepository.saveMany(
+        await Promise.all(
+          updateRequest.thumbnails.map(async (thumbnail, i) =>
+            CommissionThumbnail.of({
+              resourceId: (
+                await this.resourceService.uploadedOrCreateOtherResource(
+                  userId,
+                  StorageType.THUMBNAIL,
+                  thumbnail,
+                )
+              ).id,
+              commissionId: commission.id,
+              order: i,
+            }),
+          ),
         ),
       );
     }
