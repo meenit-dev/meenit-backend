@@ -123,10 +123,12 @@ export class ResourceService {
       key,
     );
     if (resource) {
-      if (await this.storageService.getHeadObject(resource.key)) {
-        await this.resourceRepository.save(resource.toUploaded());
-      } else {
-        throw new NotFoundError();
+      if (provider === ResourceProvider.MEENIT) {
+        if (await this.storageService.getHeadObject(resource.key)) {
+          await this.resourceRepository.save(resource.toUploaded());
+        } else {
+          throw new NotFoundError();
+        }
       }
       return resource;
     }
