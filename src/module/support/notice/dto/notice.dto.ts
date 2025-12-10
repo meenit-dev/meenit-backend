@@ -6,7 +6,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { NoticeType } from '../type/notice.type';
+import { NoticeCategory } from '../type/notice.type';
 import { PaginationResponseDto } from '@common/repository/repository.dto';
 import { Notice } from '../entity/notice.entity';
 import { UUID } from '@common/type';
@@ -45,11 +45,11 @@ export class PostNoticeBodyDto {
 
   @ApiProperty({
     description: '공지 타입',
-    example: NoticeType.NOTICE,
-    enum: NoticeType,
+    example: NoticeCategory.NOTICE,
+    enum: NoticeCategory,
   })
-  @IsEnum(NoticeType)
-  type: NoticeType;
+  @IsEnum(NoticeCategory)
+  category: NoticeCategory;
 }
 
 export class PutNoticeBodyDto {
@@ -76,11 +76,11 @@ export class PutNoticeBodyDto {
 
   @ApiProperty({
     description: '공지 타입',
-    example: NoticeType.NOTICE,
-    enum: NoticeType,
+    example: NoticeCategory.NOTICE,
+    enum: NoticeCategory,
   })
-  @IsEnum(NoticeType)
-  type: NoticeType;
+  @IsEnum(NoticeCategory)
+  category: NoticeCategory;
 }
 
 export class NoticeResponseDto {
@@ -110,10 +110,10 @@ export class NoticeResponseDto {
 
   @ApiProperty({
     description: '공지 타입',
-    example: NoticeType.NOTICE,
-    enum: NoticeType,
+    example: NoticeCategory.NOTICE,
+    enum: NoticeCategory,
   })
-  type: NoticeType;
+  category: NoticeCategory;
 
   @ApiProperty({
     description: '생성 날짜',
@@ -149,10 +149,10 @@ export class NoticeListResponseDto {
 
   @ApiProperty({
     description: '공지 타입',
-    example: NoticeType.NOTICE,
-    enum: NoticeType,
+    example: NoticeCategory.NOTICE,
+    enum: NoticeCategory,
   })
-  type: NoticeType;
+  category: NoticeCategory;
 
   @ApiProperty({
     description: '생성 날짜',
@@ -170,7 +170,7 @@ export class NoticeListResponseDto {
     this.id = notice.id;
     this.title = notice.title;
     this.pin = notice.pin;
-    this.type = notice.type;
+    this.category = notice.category;
     this.createdAt = notice.createdAt;
     this.updatedAt = notice.updatedAt;
   }
@@ -193,11 +193,11 @@ export class GetNoticesResponseDto extends PaginationResponseDto<NoticeListRespo
 export class GetNoticesQueryDto extends PaginationDto {
   @ApiProperty({
     description: '공지 타입',
-    example: NoticeType.NOTICE,
-    enum: NoticeType,
+    example: NoticeCategory.NOTICE,
+    enum: NoticeCategory,
     required: false,
   })
-  @IsEnum(NoticeType)
+  @IsEnum(NoticeCategory)
   @IsOptional()
-  type?: NoticeType;
+  category?: NoticeCategory;
 }

@@ -26,7 +26,10 @@ export class NoticeRepository extends CommonRepository<Notice> {
 
   async findNoticePagination(query: GetNoticesQueryDto) {
     return this.findAllPagination({
-      where: { pin: false, ...(query.type ? { type: query.type } : {}) },
+      where: {
+        pin: false,
+        ...(query.category ? { category: query.category } : {}),
+      },
       order: { createdAt: Order.DESC },
       paginationOptions: query,
     });

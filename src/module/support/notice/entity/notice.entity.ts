@@ -1,6 +1,6 @@
 import { CommonBaseEntity } from 'src/common/entity/common-base.entity';
 import { Column, Entity } from 'typeorm';
-import { NoticeType } from '../type/notice.type';
+import { NoticeCategory } from '../type/notice.type';
 
 @Entity({ name: 'notice' })
 export class Notice extends CommonBaseEntity {
@@ -14,19 +14,19 @@ export class Notice extends CommonBaseEntity {
   pin: boolean;
 
   @Column({ type: String })
-  type: NoticeType;
+  category: NoticeCategory;
 
   static of(createRequest: {
     title: string;
     content: string;
     pin: boolean;
-    type: NoticeType;
+    category: NoticeCategory;
   }): Notice {
     const notice = new Notice();
     notice.title = createRequest.title;
     notice.content = createRequest.content;
     notice.pin = createRequest.pin;
-    notice.type = createRequest.type;
+    notice.category = createRequest.category;
     return notice;
   }
 
@@ -34,12 +34,12 @@ export class Notice extends CommonBaseEntity {
     title: string;
     content: string;
     pin: boolean;
-    type: NoticeType;
+    category: NoticeCategory;
   }): Notice {
     this.title = updateRequest.title;
     this.content = updateRequest.content;
     this.pin = updateRequest.pin;
-    this.type = updateRequest.type;
+    this.category = updateRequest.category;
     return this;
   }
 }

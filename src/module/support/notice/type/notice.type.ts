@@ -1,3 +1,3 @@
-export enum NoticeType {
+export enum NoticeCategory {
   NOTICE = 'notice',
 }
