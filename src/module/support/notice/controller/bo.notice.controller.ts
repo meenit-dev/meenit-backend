@@ -30,7 +30,7 @@ export class BoNoticeController {
 
   @Delete(':noticeId')
   @ApiOperation({ summary: '공지 삭제' })
-  async getNotice(@Param() param: NoticeParamDto) {
+  async deleteNotice(@Param() param: NoticeParamDto) {
     return this.noticeService.deleteNoticeById(param.noticeId);
   }
 }

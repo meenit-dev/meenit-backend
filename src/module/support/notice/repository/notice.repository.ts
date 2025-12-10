@@ -17,14 +17,14 @@ export class NoticeRepository extends CommonRepository<Notice> {
     super();
   }
 
-  async getNoticesByPinned() {
+  async findNoticesByPinned() {
     return this.repository.find({
       where: { pin: false },
       order: { createdAt: Order.DESC },
     });
   }
 
-  async getNoticePagination(query: GetNoticesQueryDto) {
+  async findNoticePagination(query: GetNoticesQueryDto) {
     return this.findAllPagination({
       where: { pin: false, ...(query.type ? { type: query.type } : {}) },
       order: { createdAt: Order.DESC },

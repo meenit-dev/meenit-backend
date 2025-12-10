@@ -35,9 +35,9 @@ export class NoticeService {
   }
 
   async getNoticePagination(query: GetNoticesQueryDto) {
-    const pinNotices = await this.noticeRepository.getNoticesByPinned();
+    const pinNotices = await this.noticeRepository.findNoticesByPinned();
     const { list, totalCount } =
-      await this.noticeRepository.getNoticePagination(query);
+      await this.noticeRepository.findNoticePagination(query);
     return { list: pinNotices.concat(list), totalCount };
   }
 }
