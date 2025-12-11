@@ -28,6 +28,7 @@ import { CreatorSetting } from '../entity/creator.setting.entity';
 import { UserType } from '../type/user.type';
 import { FollowRepository } from '../repository/follow.repository';
 import { Follow } from '../entity/follow.entity';
+import { QueryFailedError } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -197,7 +198,15 @@ export class UserService {
     if (followUser.id === userId) {
       throw new BadRequestError();
     }
-    await this.followRepository.save(Follow.of(userId, followUser.id));
+
+    try {
+      await this.followRepository.save(Follow.of(userId, followUser.id));
+    } catch (e) {
+      if (e instanceof QueryFailedError && e.driverError?.code === '23505') {
+        return;
+      }
+      throw e;
+    }
   }
 
   async unfollowUser(userId: UUID, handle: string) {

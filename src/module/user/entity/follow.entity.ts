@@ -4,9 +4,12 @@ import { User } from './user.entity';
 import { UUID } from '@common/type';
 
 @Entity({ name: 'follow' })
+@Index(['userId', 'followUserId'], {
+  unique: true,
+  where: '"deleted_at" IS NULL',
+})
 export class Follow extends CommonBaseEntity {
   @Column({ name: 'user_id', nullable: false, type: String })
-  @Index()
   userId: UUID;
 
   @Column({ name: 'follow_user_id', nullable: false, type: String })
