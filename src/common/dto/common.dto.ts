@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class PaginationDto {
   @ApiProperty({
@@ -14,6 +22,27 @@ export class PaginationDto {
 
   @ApiProperty({
     description: 'page 당 가져올 데이터 수. 최대 500',
+    example: 20,
+  })
+  @Max(500)
+  @Min(1)
+  @IsNumber()
+  @Type(() => Number)
+  limit: number;
+}
+
+export class CursorPaginationDto {
+  @ApiProperty({
+    description: 'cursor key',
+    example: 'cursor',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  cursor?: string;
+
+  @ApiProperty({
+    description: '한번에 가져올 데이터 수. 최대 500',
     example: 20,
   })
   @Max(500)

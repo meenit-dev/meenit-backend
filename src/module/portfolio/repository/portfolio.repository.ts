@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CommonRepository } from '@common/repository/common.repository';
 import { UUID } from '@common/type';
 import { Portfolio } from '../entity/portfolio.entity';
-import { PaginationDto } from '@common/dto';
+import { CursorPaginationDto, PaginationDto } from '@common/dto';
 import { PortfolioCategory } from '../type/portfolio.type';
 
 @Injectable()
@@ -42,17 +42,62 @@ export class PortfolioRepository extends CommonRepository<Portfolio> {
   }
 
   async findAllPaginationByUserIdAndCategory(
+    cursor: string | null,
     userId: UUID | null,
+    category: PortfolioCategory | null,
+    requestUserId: UUID | null,
+    paginationOptions: CursorPaginationDto,
+  ) {
+    const qb = this.repository
+      .createQueryBuilder('portfolio')
+      .where(userId ? 'portfolio.userId = :userId' : '1=1', {
+        userId,
+      });
+    if (cursor) {
+      qb.andWhere('portfolio.id < :id', {
+        id: cursor,
+      });
+    }
+    if (category) {
+      qb.andWhere('portfolio.category = :category', {
+        category,
+      });
+    }
+
+    qb.leftJoinAndSelect('portfolio.user', 'user')
+      .leftJoinAndSelect('portfolio.tags', 'pt')
+      .leftJoinAndSelect('pt.tag', 'tag')
+      .leftJoinAndSelect('portfolio.resource', 'resource');
+
+    if (requestUserId) {
+      qb.leftJoinAndSelect(
+        'portfolio.likes',
+        'pl',
+        'pl.userId = :requestUserId',
+        { requestUserId },
+      );
+    }
+
+    qb.take(paginationOptions.limit + 1);
+    qb.orderBy('portfolio.id', 'DESC');
+
+    const list = await qb.getMany();
+    return {
+      list: list.slice(0, paginationOptions.limit),
+      nextCursor: list[paginationOptions.limit]
+        ? list[paginationOptions.limit - 1].id
+        : null,
+    };
+  }
+
+  async findAllPaginationByCategory(
     category: PortfolioCategory | null,
     requestUserId: UUID | null,
     paginationOptions: PaginationDto,
   ) {
     const qb = this.repository
       .createQueryBuilder('portfolio')
-      .where(userId ? 'portfolio.userId = :userId' : '1=1', {
-        userId,
-      })
-      .andWhere(category ? 'portfolio.category = :category' : '1=1', {
+      .where(category ? 'portfolio.category = :category' : '1=1', {
         category,
       });
 

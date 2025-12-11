@@ -5,6 +5,7 @@ import { DuplicatedError, ForbiddenError, NotFoundError } from '@common/error';
 import { UserService } from 'src/module/user/service/user.service';
 import {
   GetPortfoliosQueryDto,
+  GetUserPortfoliosQueryDto,
   PatchPortfoliosBodyDto,
   PostPortfoliosBodyDto,
 } from '../dto/portfolio.dto';
@@ -54,10 +55,11 @@ export class PortfolioService {
   async getPortfoliosPaginationByHandle(
     handle: string,
     requestUserId: UUID | null,
-    query: GetPortfoliosQueryDto,
+    query: GetUserPortfoliosQueryDto,
   ) {
     const user = await this.userService.getUserByHandle(handle);
     return this.portfolioRepository.findAllPaginationByUserIdAndCategory(
+      query.cursor,
       user.id,
       query.category,
       requestUserId,
@@ -69,8 +71,7 @@ export class PortfolioService {
     requestUserId: UUID | null,
     query: GetPortfoliosQueryDto,
   ) {
-    return this.portfolioRepository.findAllPaginationByUserIdAndCategory(
-      null,
+    return this.portfolioRepository.findAllPaginationByCategory(
       query.category,
       requestUserId,
       query,

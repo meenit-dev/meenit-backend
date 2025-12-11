@@ -3,7 +3,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PortfolioService } from '../service/portfolio.service';
 import {
   GetPortfoliosResponseDto,
-  GetPortfoliosQueryDto,
+  GetUserPortfoliosQueryDto,
 } from '../dto/portfolio.dto';
 import { UserHandleParamDto } from '@common/dto/user.dto';
 import { ReqUser } from '@common/decorator';
@@ -21,7 +21,7 @@ export class UesrPortfolioController {
   })
   async getPortfoliosPaginationByUserId(
     @Param() param: UserHandleParamDto,
-    @Query() query: GetPortfoliosQueryDto,
+    @Query() query: GetUserPortfoliosQueryDto,
     @ReqUser() user: UserPayload,
   ) {
     return new GetPortfoliosResponseDto(

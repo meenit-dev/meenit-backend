@@ -9,8 +9,8 @@ import {
 } from 'class-validator';
 import { UUID } from '@common/type';
 import { PortfolioCategory } from '../type/portfolio.type';
-import { PaginationDto } from '@common/dto';
-import { PaginationResponseDto } from '@common/repository/repository.dto';
+import { CursorPaginationDto, PaginationDto } from '@common/dto';
+import { CursorPaginationResponseDto } from '@common/repository/repository.dto';
 import { ResourceDto } from '@common/dto/resource.dto';
 import { IsOptionalDefined } from '@common/decorator/dto.decorator';
 import { UserResponseDto } from 'src/module/user/dto/user.dto';
@@ -25,6 +25,18 @@ export class PortfolioParamDto {
 }
 
 export class GetPortfoliosQueryDto extends PaginationDto {
+  @ApiProperty({
+    description: 'portfolio 카테고리',
+    example: PortfolioCategory.WRITING,
+    required: false,
+    enum: PortfolioCategory,
+  })
+  @IsOptional()
+  @IsEnum(PortfolioCategory)
+  category?: PortfolioCategory;
+}
+
+export class GetUserPortfoliosQueryDto extends CursorPaginationDto {
   @ApiProperty({
     description: 'portfolio 카테고리',
     example: PortfolioCategory.WRITING,
@@ -106,17 +118,20 @@ export class PortfolioResponseDto {
   }
 }
 
-export class GetPortfoliosResponseDto extends PaginationResponseDto<PortfolioResponseDto> {
+export class GetPortfoliosResponseDto extends CursorPaginationResponseDto<PortfolioResponseDto> {
   @ApiProperty({
     description: '리스트',
     type: [PortfolioResponseDto],
   })
   list: PortfolioResponseDto[];
 
-  constructor({ list, totalCount }: PaginationResponseDto<Portfolio>) {
+  constructor({
+    list,
+    nextCursor: nextCoursor,
+  }: CursorPaginationResponseDto<Portfolio>) {
     super();
     this.list = list.map((portfolio) => new PortfolioResponseDto(portfolio));
-    this.totalCount = totalCount;
+    this.nextCursor = nextCoursor;
   }
 }
 
