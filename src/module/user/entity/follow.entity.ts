@@ -9,10 +9,10 @@ import { UUID } from '@common/type';
   where: '"deleted_at" IS NULL',
 })
 export class Follow extends CommonBaseEntity {
-  @Column({ name: 'user_id', nullable: false, type: String })
+  @Column({ name: 'user_id', nullable: false, type: 'uuid' })
   userId: UUID;
 
-  @Column({ name: 'follow_user_id', nullable: false, type: String })
+  @Column({ name: 'follow_user_id', nullable: false, type: 'uuid' })
   @Index()
   followUserId: UUID;
 

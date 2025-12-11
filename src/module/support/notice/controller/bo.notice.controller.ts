@@ -15,7 +15,7 @@ export class BoNoticeController {
 
   @Post()
   @ApiOperation({ summary: '공지 생성' })
-  async CreateNotice(@Body() body: PostNoticeBodyDto) {
+  async createNotice(@Body() body: PostNoticeBodyDto) {
     return this.noticeService.createNotice(body);
   }
 

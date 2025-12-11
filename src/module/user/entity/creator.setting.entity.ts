@@ -6,7 +6,7 @@ import { SlotStatus } from 'src/module/commission/type/commission.type';
 
 @Entity({ name: 'creator_setting' })
 export class CreatorSetting extends CommonBaseEntity {
-  @Column({ name: 'user_id', nullable: false, type: String })
+  @Column({ name: 'user_id', nullable: false, type: 'uuid' })
   @Index()
   userId: UUID;
 

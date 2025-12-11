@@ -50,6 +50,11 @@ export class StorageService {
           path: `users/${user.id}/report/${v7()}.${extention}`,
           maxSizeBytes: 52428800, // 50MB
         };
+      case StorageType.INQUIRY:
+        return {
+          path: `users/${user.id}/inquiry/${v7()}.${extention}`,
+          maxSizeBytes: 52428800, // 50MB
+        };
     }
   }
 

@@ -6,7 +6,7 @@ import { UserProfileLink } from '../type/user.type';
 
 @Entity({ name: 'user_profile' })
 export class UserProfile extends CommonBaseEntity {
-  @Column({ name: 'user_id', nullable: false, type: String })
+  @Column({ name: 'user_id', nullable: false, type: 'uuid' })
   @Index()
   userId: UUID;
 

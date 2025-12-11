@@ -95,12 +95,6 @@ export class FaqResponseDto {
   content: string;
 
   @ApiProperty({
-    description: 'FAQ 상단 고정 여부',
-    example: false,
-  })
-  pin: boolean;
-
-  @ApiProperty({
     description: '같은 카테고리 내의 FAQ 순서',
     example: 1,
   })

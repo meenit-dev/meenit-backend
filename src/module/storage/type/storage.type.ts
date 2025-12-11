@@ -8,4 +8,5 @@ export enum StorageType {
   COMMISSION = 'commission',
   PORTFOLIO = 'portfolio',
   REPORT = 'report',
+  INQUIRY = 'inquiry',
 }

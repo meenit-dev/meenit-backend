@@ -17,7 +17,6 @@ import { PortfolioModule } from './module/portfolio/portfolio.module';
 import { CommissionModule } from './module/commission/commission.module';
 import { CreatorModule } from './module/creator/creator.module';
 import { UtilModule } from './module/util/util.module';
-import { ReportModule } from './module/report/report.module';
 import { NotificationModule } from './module/notification/notification.module';
 import { SupportModule } from './module/support/support.module';
 
@@ -44,7 +43,6 @@ import { SupportModule } from './module/support/support.module';
     CommissionModule,
     CreatorModule,
     UtilModule,
-    ReportModule,
     NotificationModule,
     SupportModule,
   ],

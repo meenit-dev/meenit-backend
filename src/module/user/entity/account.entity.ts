@@ -5,7 +5,7 @@ import { UUID } from '@common/type';
 
 @Entity({ name: 'account' })
 export class Account extends CommonBaseEntity {
-  @Column({ name: 'user_id', nullable: false, type: String })
+  @Column({ name: 'user_id', nullable: false, type: 'uuid' })
   @Index()
   userId: UUID;
 

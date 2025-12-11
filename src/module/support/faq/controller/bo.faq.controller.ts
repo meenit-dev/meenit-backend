@@ -11,7 +11,7 @@ export class BoFaqController {
 
   @Post()
   @ApiOperation({ summary: '공지 생성' })
-  async CreateFaq(@Body() body: PostFaqBodyDto) {
+  async createFaq(@Body() body: PostFaqBodyDto) {
     return this.faqService.createFaq(body);
   }
 
