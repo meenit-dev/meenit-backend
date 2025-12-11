@@ -1,5 +1,13 @@
-import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { NoticeService } from '../service/notice.service';
 import {
   PostNoticeBodyDto,
@@ -7,9 +15,13 @@ import {
   PutNoticeBodyDto,
 } from '../dto/notice.dto';
 import { SwaggerApiTag } from '@common/type';
+import { AuthAdminGuard } from 'src/module/auth/guard/auth.admin.guard';
+import { AuthType } from 'src/module/auth/type/auth.type';
 
 @Controller({ path: 'bo/notices', version: '1' })
 @ApiTags(SwaggerApiTag.BACK_OFFICE, 'Support')
+@UseGuards(AuthAdminGuard)
+@ApiSecurity(AuthType.ADMIN)
 export class BoNoticeController {
   constructor(private readonly noticeService: NoticeService) {}
 

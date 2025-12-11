@@ -17,19 +17,28 @@ import { EmailVerification } from './entity/email.verification.entity';
 import { SsoAccountRepository } from './repository/sso.account.repository';
 import { SsoAccount } from './entity/sso.account.entity';
 import { JwtOptionalUserStrategy } from './strategy/jwt.optional.user.strategy';
+import { AdminModule } from '../admin/admin.module';
+import { JwtAdminRefreshStrategy } from './strategy/jwt.admin.refresh.strategy';
+import { JwtAdminStrategy } from './strategy/jwt.admin.strategy';
+import { AdminAuthService } from './service/admin.auth.service';
+import { AdminAuthController } from './controller/admin.auth.controller';
 
 @Module({
   imports: [
     JwtModule.register({}),
     TypeOrmModule.forFeature([UserAuthToken, EmailVerification, SsoAccount]),
     UserModule,
+    AdminModule,
     MailModule,
   ],
   providers: [
     AuthService,
+    AdminAuthService,
     JwtUserStrategy,
     JwtOptionalUserStrategy,
     JwtRefreshStrategy,
+    JwtAdminRefreshStrategy,
+    JwtAdminStrategy,
     GoogleStrategy,
     XStrategy,
     UserAuthTokenRepository,
@@ -38,6 +47,6 @@ import { JwtOptionalUserStrategy } from './strategy/jwt.optional.user.strategy';
     SsoAccountRepository,
   ],
   exports: [AuthService],
-  controllers: [AuthController],
+  controllers: [AuthController, AdminAuthController],
 })
 export class AuthModule {}

@@ -1,5 +1,5 @@
-import { Body, Controller, Param, Post, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { InquiryService } from '../service/inquiry.service';
 import { SwaggerApiTag } from '@common/type';
 import { InquiryParamDto } from '../dto/inquiry.dto';
@@ -8,9 +8,13 @@ import {
   PostInquiryAnswerBodyDto,
   PutInquiryAnswerBodyDto,
 } from '../dto/inquiry.answer.dto';
+import { AuthType } from 'src/module/auth/type/auth.type';
+import { AuthAdminGuard } from 'src/module/auth/guard/auth.admin.guard';
 
 @Controller({ path: 'bo/inquiries', version: '1' })
 @ApiTags(SwaggerApiTag.BACK_OFFICE, 'Support')
+@UseGuards(AuthAdminGuard)
+@ApiSecurity(AuthType.ADMIN)
 export class BoInquiryController {
   constructor(private readonly inquiryService: InquiryService) {}
 

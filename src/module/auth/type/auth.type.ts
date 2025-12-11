@@ -53,3 +53,19 @@ export const getJwtAccessExpiration = (): number => {
 export const getJwtRefreshExpiration = (): number => {
   return Number(process.env.JWT_REFRESH_EXPIRATION || 60 * 60 * 24 * 7);
 };
+
+export const getJwtAdminAccessSecret = () => {
+  return process.env.JWT_ADMIN_SECRET || 'admin-development';
+};
+
+export const getJwtAdminRefreshSecret = () => {
+  return process.env.JWT_ADMIN_REFRESH_SECRET || 'admin-refresh-development';
+};
+
+export const getJwtAdminAccessExpiration = (): number => {
+  return Number(process.env.JWT_ADMIN_EXPIRATION || 60 * 60 * 24);
+};
+
+export const getJwtAdminRefreshExpiration = (): number => {
+  return Number(process.env.JWT_ADMIN_REFRESH_EXPIRATION || 60 * 60 * 24 * 7);
+};

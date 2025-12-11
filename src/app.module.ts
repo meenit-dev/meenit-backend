@@ -19,6 +19,7 @@ import { CreatorModule } from './module/creator/creator.module';
 import { UtilModule } from './module/util/util.module';
 import { NotificationModule } from './module/notification/notification.module';
 import { SupportModule } from './module/support/support.module';
+import { AdminModule } from './module/admin/admin.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { SupportModule } from './module/support/support.module';
     UtilModule,
     NotificationModule,
     SupportModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [{ provide: APP_FILTER, useClass: CustomExceptionFilter }],

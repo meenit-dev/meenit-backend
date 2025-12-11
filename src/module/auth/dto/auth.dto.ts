@@ -66,12 +66,6 @@ export interface SignUpRequestDto {
 
 export class BasicJWTResponseDto {
   @ApiProperty({
-    description: '로그인한 유저 정보',
-    type: UserResponseDto,
-  })
-  user: UserResponseDto;
-
-  @ApiProperty({
     description: 'accessToken',
     example: 'accessToken',
   })
@@ -82,6 +76,14 @@ export class BasicJWTResponseDto {
     example: 'refreshToken',
   })
   refreshToken: string;
+}
+
+export class BasicJWTWithUserResponseDto extends BasicJWTResponseDto {
+  @ApiProperty({
+    description: '로그인한 유저 정보',
+    type: UserResponseDto,
+  })
+  user: UserResponseDto;
 }
 
 export class PostEmailCodeBodyDto {

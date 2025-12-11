@@ -1,6 +1,6 @@
 import { ReqUser } from '@common/decorator';
 import {
-  BasicJWTResponseDto,
+  BasicJWTWithUserResponseDto,
   PostEmailCodeBodyDto,
   PostEmailCodeValidationBodyDto,
   SsoSignUpBodyDto,
@@ -114,7 +114,7 @@ export class AuthController {
 
   @Post('sign-up')
   @ApiOperation({ summary: '회원가입' })
-  @ApiCreatedResponse({ type: BasicJWTResponseDto })
+  @ApiCreatedResponse({ type: BasicJWTWithUserResponseDto })
   async signUp(@Body() body: SsoSignUpBodyDto) {
     return this.authService.signUp(body);
   }
@@ -124,12 +124,12 @@ export class AuthController {
   @Post('refresh')
   @ApiOperation({ summary: 'JWT 토큰 재발급' })
   @ApiCreatedResponse({
-    type: BasicJWTResponseDto,
+    type: BasicJWTWithUserResponseDto,
   })
   async refresh(
     @ReqUser() user: UserPayload,
     @Headers() headers: IncomingHttpHeaders,
-  ): Promise<BasicJWTResponseDto> {
+  ): Promise<BasicJWTWithUserResponseDto> {
     return this.authService.refresh(user, headers.authorization.split(' ')[1]);
   }
 

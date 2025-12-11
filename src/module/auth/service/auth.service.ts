@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/service/user.service';
-import { BasicJWTResponseDto, SsoSignUpBodyDto } from '../dto/auth.dto';
+import { BasicJWTWithUserResponseDto, SsoSignUpBodyDto } from '../dto/auth.dto';
 import {
   getJwtAccessExpiration,
   getJwtAccessSecret,
@@ -38,7 +38,9 @@ export class AuthService {
     return this.makeBasicJWTResponse(user);
   }
 
-  async signIn(ssoUserPayload: SsoUserPayload): Promise<BasicJWTResponseDto> {
+  async signIn(
+    ssoUserPayload: SsoUserPayload,
+  ): Promise<BasicJWTWithUserResponseDto> {
     const user = await (async () => {
       const user = await this.userService.getUserByProviderAndProviderId(
         ssoUserPayload.provider,
@@ -67,7 +69,7 @@ export class AuthService {
   async refresh(
     { id }: UserPayload,
     refreshToken: string,
-  ): Promise<BasicJWTResponseDto> {
+  ): Promise<BasicJWTWithUserResponseDto> {
     const user = await this.userService.getUserById(id);
     if (!user) {
       throw new NotFoundError();
