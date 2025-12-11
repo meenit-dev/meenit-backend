@@ -4,7 +4,7 @@ import { SlotRepository } from '../repository/slot.repository';
 import { addHours } from 'date-fns';
 import { Slot } from '../entity/slot.entity';
 import { Transactional } from 'typeorm-transactional';
-import { PatchSlotBodyDto } from '../dto/slot.dto';
+import { PatchSlotBatchBodyDto, PatchSlotBodyDto } from '../dto/slot.dto';
 import { UUID } from '@common/type';
 import { ForbiddenError, NotFoundError } from '@common/error';
 
@@ -87,5 +87,15 @@ export class SlotService {
       throw new ForbiddenError();
     }
     this.slotRepository.save(slot.update(updateRequest));
+  }
+
+  @Transactional()
+  async updateSlotsByUserId(
+    userId: UUID,
+    updateRequest: PatchSlotBatchBodyDto,
+  ) {
+    for (const { slotId, request } of updateRequest.list) {
+      await this.updateSlotByIdAndUserId(slotId, userId, request);
+    }
   }
 }

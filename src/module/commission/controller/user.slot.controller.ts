@@ -8,8 +8,9 @@ import {
 import { SlotService } from '../service/slot.service';
 import {
   GetSlotsResponseDto,
+  PatchSlotBatchBodyDto,
   PatchSlotBodyDto,
-  SlotIdtParamDto,
+  SlotIdParamDto,
 } from '../dto/slot.dto';
 import { AuthUserGuard } from 'src/module/auth/guard/auth.user.guard';
 import { AuthType, UserPayload } from 'src/module/auth/type/auth.type';
@@ -32,13 +33,25 @@ export class UserSlotController {
     );
   }
 
+  @Patch('batch')
+  @UseGuards(AuthUserGuard)
+  @ApiSecurity(AuthType.USER)
+  @ApiOperation({ summary: 'slot 정보 일괄 수정' })
+  async updateSlots(
+    @ReqUser() user: UserPayload,
+    @Param() _: UserHandleParamDto,
+    @Body() body: PatchSlotBatchBodyDto,
+  ) {
+    await this.slotService.updateSlotsByUserId(user.id, body);
+  }
+
   @Patch(':slotId')
   @UseGuards(AuthUserGuard)
   @ApiSecurity(AuthType.USER)
   @ApiOperation({ summary: 'slot 정보 수정' })
   async updateSlot(
     @ReqUser() user: UserPayload,
-    @Param() param: SlotIdtParamDto,
+    @Param() param: SlotIdParamDto,
     @Body() body: PatchSlotBodyDto,
   ) {
     await this.slotService.updateSlotByIdAndUserId(param.slotId, user.id, body);

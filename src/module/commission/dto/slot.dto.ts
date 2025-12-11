@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsUUID } from 'class-validator';
+import { IsEnum, IsUUID, ValidateNested } from 'class-validator';
 import { UUID } from '@common/type';
 import { Slot } from '../entity/slot.entity';
 import { IsOptionalDefined } from '@common/decorator/dto.decorator';
 import { UserHandleParamDto } from '@common/dto/user.dto';
 import { SlotStatus } from '../type/commission.type';
+import { Type } from 'class-transformer';
 
-export class SlotIdtParamDto extends UserHandleParamDto {
+export class SlotIdParamDto extends UserHandleParamDto {
   @ApiProperty({
     description: '고유 아이디',
     example: 'id',
@@ -77,4 +78,31 @@ export class PatchSlotBodyDto {
   @IsEnum(SlotStatus)
   @IsOptionalDefined()
   status?: SlotStatus;
+}
+
+export class SlotBatchDto {
+  @ApiProperty({
+    description: '고유 아이디',
+    example: 'id',
+  })
+  @IsUUID()
+  slotId: UUID;
+
+  @ApiProperty({
+    description: '변경할 slot 정보',
+    type: [PatchSlotBodyDto],
+  })
+  @Type(() => PatchSlotBodyDto)
+  @ValidateNested({ each: true })
+  request?: PatchSlotBodyDto;
+}
+
+export class PatchSlotBatchBodyDto {
+  @ApiProperty({
+    description: '변경할 slot 정보 리스트',
+    type: [SlotBatchDto],
+  })
+  @Type(() => SlotBatchDto)
+  @ValidateNested({ each: true })
+  list: SlotBatchDto[];
 }
