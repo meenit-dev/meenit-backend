@@ -28,6 +28,7 @@ export class Portfolio extends CommonBaseEntity {
   description?: string;
 
   @Column({ name: 'resource_id', nullable: false, type: 'uuid' })
+  @Index()
   resourceId: UUID;
 
   @Column({ name: 'thumbnail_url', nullable: true, type: String })

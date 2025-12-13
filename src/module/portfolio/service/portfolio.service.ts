@@ -127,10 +127,7 @@ export class PortfolioService {
 
   @Transactional()
   async deletePortfolioByIdAndUserId(id: UUID, userId: UUID) {
-    const portfolio =
-      await this.portfolioRepository.findOneWithTagAndResourceAndLikeAndUserById(
-        id,
-      );
+    const portfolio = await this.portfolioRepository.findOneById(id);
     if (!portfolio) {
       return;
     }
@@ -140,11 +137,15 @@ export class PortfolioService {
     await this.portfolioTagRepository.softDeleteByIds(
       portfolio.tags.map((tag) => tag.id),
     );
-    await this.resourceService.deleteResourceById(portfolio.resource.id);
+    await this.portfolioRepository.softDeleteById(portfolio.id);
+    if (
+      !(await this.portfolioRepository.exsitsByResourceId(portfolio.resourceId))
+    ) {
+      await this.resourceService.deleteResourceById(portfolio.resourceId);
+    }
     if (portfolio.thumbnailUrl) {
       await this.resourceService.deleteResourceByUrl(portfolio.thumbnailUrl);
     }
-    await this.portfolioRepository.softDeleteById(portfolio.id);
   }
 
   @Transactional()

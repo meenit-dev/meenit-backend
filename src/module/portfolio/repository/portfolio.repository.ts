@@ -134,4 +134,8 @@ export class PortfolioRepository extends CommonRepository<Portfolio> {
   async decreseLikeCountById(id: UUID) {
     await this.repository.decrement({ id }, 'likeCount', 1);
   }
+
+  async exsitsByResourceId(resourceId: UUID) {
+    return this.repository.existsBy({ resourceId });
+  }
 }
