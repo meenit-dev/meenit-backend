@@ -34,6 +34,11 @@ export class ResourceRepository extends CommonRepository<Resource> {
   async findPortfolioResourceSizeAndCountByUserId(userId: UUID) {
     const qb = this.repository
       .createQueryBuilder('r')
+      .innerJoin(
+        'portfolio',
+        'p',
+        'p.resource_id = r.id AND p.deleted_at IS NULL',
+      )
       .select('SUM(r.size)', 'usedSize')
       .addSelect('COUNT(*)', 'fileCount')
       .where('r.userId = :userId', { userId })
@@ -42,13 +47,13 @@ export class ResourceRepository extends CommonRepository<Resource> {
       .andWhere('r.deletedAt IS NULL')
       .groupBy('r.userId');
 
-    const { usedSize, fileCount } = await qb.getRawOne<{
+    const result = await qb.getRawOne<{
       usedSize: number;
       fileCount: number;
     }>();
     return {
-      usedSize: Number(usedSize ?? 0),
-      fileCount: Number(fileCount ?? 0),
+      usedSize: Number(result?.usedSize ?? 0),
+      fileCount: Number(result?.fileCount ?? 0),
     };
   }
 
