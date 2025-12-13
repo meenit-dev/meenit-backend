@@ -17,6 +17,6 @@ export class PortfolioTagRepository extends CommonRepository<PortfolioTag> {
   }
 
   async deleteManyByPortfolioId(portfolioId: UUID) {
-    return await this.repository.softDelete({ portfolioId: portfolioId });
+    return this.repository.softDelete({ portfolioId: portfolioId });
   }
 }

@@ -29,6 +29,9 @@ export class CommonRepository<Entity extends ObjectLiteral> {
   }
 
   async findByIds(ids: string[]): Promise<Entity[]> {
+    if (ids.length === 0) {
+      return [];
+    }
     return this.repository.findBy({
       id: In(ids),
     } as unknown as FindOptionsWhere<Entity>);
@@ -78,6 +81,9 @@ export class CommonRepository<Entity extends ObjectLiteral> {
   }
 
   async softDeleteByIds(ids: string[]): Promise<DeleteResult> {
+    if (ids.length === 0) {
+      return;
+    }
     return this.repository.softDelete(ids);
   }
 
@@ -88,6 +94,9 @@ export class CommonRepository<Entity extends ObjectLiteral> {
   }
 
   async deleteByIds(ids: string[]): Promise<DeleteResult> {
+    if (ids.length === 0) {
+      return;
+    }
     return this.repository.delete(ids);
   }
 }
