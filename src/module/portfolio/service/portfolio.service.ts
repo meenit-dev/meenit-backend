@@ -127,7 +127,10 @@ export class PortfolioService {
 
   @Transactional()
   async deletePortfolioByIdAndUserId(id: UUID, userId: UUID) {
-    const portfolio = await this.portfolioRepository.findOneById(id);
+    const portfolio =
+      await this.portfolioRepository.findOneWithTagAndResourceAndLikeAndUserById(
+        id,
+      );
     if (!portfolio) {
       return;
     }
